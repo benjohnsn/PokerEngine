@@ -6,6 +6,24 @@ class Game:
         self.deck = Deck()
         self.player1Hand = []
         self.player2Hand = []
+        self.board = []
+
+
+    def dealHands(self):
+        self.player1Hand.append(self.deck.deal())
+        self.player1Hand.append(self.deck.deal())
+        self.player2Hand.append(self.deck.deal())
+        self.player2Hand.append(self.deck.deal())
+
+
+    def rankValue(self, card):
+        values = {
+        "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
+        "7": 7, "8": 8, "9": 9, "10": 10,
+        "J": 11, "Q": 12, "K": 13, "A": 14
+        }
+        return values[card.rank]
+
 
     def run(self):
         print("Starting Game...")
@@ -13,10 +31,38 @@ class Game:
         
         self.deck.shuffle()
         
-        self.player1Hand.append(self.deck.deal())
-        self.player1Hand.append(self.deck.deal())
-        self.player2Hand.append(self.deck.deal())
-        self.player2Hand.append(self.deck.deal())
+        self.dealHands()
+
+        for _ in range(3):
+            self.board.append(self.deck.deal())
+
+        self.board.append(self.deck.deal())
+
+        self.board.append(self.deck.deal())
 
         print(self.player1Hand)
         print(self.player2Hand)
+        print(self.board)
+
+        player1Cards = self.player1Hand + self.board        
+        max = self.rankValue(player1Cards[0])
+        for i in range(1, 7):
+            newMax = self.rankValue(player1Cards[i])
+            if newMax > max:
+                max = newMax
+        player1Max = max
+
+        player2Cards = self.player2Hand + self.board        
+        max = self.rankValue(player2Cards[0])
+        for i in range(1, 7):
+            newMax = self.rankValue(player2Cards[i])
+            if newMax > max:
+                max = newMax
+        player2Max = max
+
+        if player1Max > player2Max:
+            print(self.players[0], "wins!")
+        elif player1Max < player2Max:
+            print(self.players[1], "wins!")
+        else:
+            print("Tie!")

@@ -9,7 +9,7 @@ class Deck:
             for rank in RANKS:
                 card = Card(rank, suit)
                 self.cards.append(card)
-    
+
     def shuffle(self):
         random.shuffle(self.cards)
 

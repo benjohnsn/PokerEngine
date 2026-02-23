@@ -97,6 +97,8 @@ class Game:
 
 
     def run(self):
+        self.newHand()
+
         print("Players:", self.players)
 
         self.deck.shuffle()
@@ -120,3 +122,9 @@ class Game:
             print(self.players[1], "wins with", p2Score)
         else:
             print("Tie!", p1Score)
+        
+    def newHand(self):
+        self.player1Hand = []
+        self.player2Hand = []
+        self.board = []
+        self.deck = Deck()

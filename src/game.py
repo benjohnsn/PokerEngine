@@ -51,8 +51,12 @@ class Game:
                 pairVals.append(val)
         pairVals.sort(reverse=True)
 
-        
-        if len(tripleVals) >= 1:
+        if len(tripleVals) >= 1 and (len(pairVals) >= 1 or len(tripleVals) >= 2):
+            if len(pairVals) >= 1:
+                return (6, tripleVals[0], pairVals[0])
+            else:
+                return (6, tripleVals[0], tripleVals[1])
+        elif len(tripleVals) >= 1:
             kickers = []
             for val in handVal:
                 if len(kickers) == 2:

@@ -31,7 +31,6 @@ class Game:
 
         for card in cards:
             handVal.append(self.rankValue(card))
-
         handVal.sort(reverse=True)
 
         for val in handVal:
@@ -40,14 +39,28 @@ class Game:
             else:
                 counts[val] = 1
 
+        tripleVals = []
+        for val in counts:
+            if counts[val] == 3:
+                tripleVals.append(val)
+        tripleVals.sort(reverse=True)
+
         pairVals = []
         for val in counts:
             if counts[val] == 2:
                 pairVals.append(val)
-        
         pairVals.sort(reverse=True)
 
-        if len(pairVals) >= 2:
+        
+        if len(tripleVals) >= 1:
+            kickers = []
+            for val in handVal:
+                if len(kickers) == 2:
+                    break
+                if val != tripleVals[0]:
+                    kickers.append(val)
+            return (3, tripleVals[0], kickers[0], kickers[1])
+        elif len(pairVals) >= 2:
             highPair = pairVals[0]
             lowPair = pairVals[1]
             for val in handVal:

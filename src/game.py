@@ -16,7 +16,7 @@ class Game:
         self.player2Hand.append(self.deck.deal())
 
 
-    def rankValue(self, card):
+    def rankToValue(self, card):
         values = {
             "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
             "7": 7, "8": 8, "9": 9, "10": 10,
@@ -24,13 +24,22 @@ class Game:
         }
         return values[card.rank]
     
+    
+    def valueToRank(self, value):
+        values = {
+            2: "2", 3: "3", 4: "4", 5: "5", 6: "6",
+            7: "7", 8: "8", 9: "9", 10: "10",
+            11: "J", 12: "Q", 13: "K", 14: "A"
+        }
+        return values[value]
+
 
     def evaluateHand(self, cards):
         handVal = []
         counts = {}
 
         for card in cards:
-            handVal.append(self.rankValue(card))
+            handVal.append(self.rankToValue(card))
         handVal.sort(reverse=True)
 
         for val in handVal:
@@ -96,6 +105,42 @@ class Game:
             return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
 
 
+    def formatHand(self, score):
+        handType = score[0]
+
+        if handType == 7:
+            quad = self.valueToRank(score[1])
+            kicker = self.valueToRank(score[2])
+            return f"Four of a kind: {quad}s ({kicker} kicker)"
+        elif handType == 6:
+            triple = self.valueToRank(score[1])
+            pair = self.valueToRank(score[2])
+            return f"Full House: {triple}s full of {pair}s"
+        elif handType == 3:
+            triple = self.valueToRank(score[1])
+            k1 = self.valueToRank(score[2])
+            k2 = self.valueToRank(score[3])
+            return f"Three of a kind: {triple}s ({k1} {k2} kickers)"
+        elif handType == 2:
+            highPair = self.valueToRank(score[1])
+            lowPair = self.valueToRank(score[2])
+            kicker = self.valueToRank(score[3])
+            return f"Two pair: {highPair}s and {lowPair}s ({kicker} kicker)"
+        elif handType == 1:
+            pair = self.valueToRank(score[1])
+            k1 = self.valueToRank(score[2])
+            k2 = self.valueToRank(score[3])
+            k3 = self.valueToRank(score[4])
+            return f"Pair: {pair}s ({k1} {k2} {k3} kickers)"
+        elif handType == 0:
+            v1 = self.valueToRank(score[1])
+            v2 = self.valueToRank(score[2])
+            v3 = self.valueToRank(score[3])
+            v4 = self.valueToRank(score[4])
+            v5 = self.valueToRank(score[5])
+            return f"High card: {v1} {v2} {v3} {v4} {v5}"
+
+
     def run(self):
         self.newHand()
 
@@ -104,25 +149,42 @@ class Game:
         self.deck.shuffle()
         self.dealHands()
 
-        for _ in range(3):
-            self.board.append(self.deck.deal())
-        self.board.append(self.deck.deal())
-        self.board.append(self.deck.deal())
+        self.dealFlop()
+        self.dealTurn()
+        self.dealRiver()
 
-        print(self.player1Hand)
-        print(self.player2Hand)
-        print(self.board)
+        self.showState()
 
         p1Score = self.evaluateHand(self.player1Hand + self.board)
         p2Score = self.evaluateHand(self.player2Hand + self.board)
 
         if p1Score > p2Score:
-            print(self.players[0], "wins with", p1Score)
+            print(self.players[0], "wins with", self.formatHand(p1Score))
         elif p2Score > p1Score:
-            print(self.players[1], "wins with", p2Score)
+            print(self.players[1], "wins with", self.formatHand(p2Score))
         else:
-            print("Tie!", p1Score)
-        
+            print("Tie!", self.formatHand(p1Score))
+
+
+    def dealFlop(self):
+        for _ in range(3):
+            self.board.append(self.deck.deal())
+
+
+    def dealTurn(self):
+        self.board.append(self.deck.deal())
+
+
+    def dealRiver(self):
+        self.board.append(self.deck.deal())
+
+
+    def showState(self):
+        print(self.player1Hand)
+        print(self.player2Hand)
+        print(self.board)
+
+    
     def newHand(self):
         self.player1Hand = []
         self.player2Hand = []

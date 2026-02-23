@@ -27,16 +27,38 @@ class Game:
 
     def evaluateHand(self, cards):
         handVal = []
+        counts = {}
+
         for card in cards:
             handVal.append(self.rankValue(card))
 
         handVal.sort(reverse=True)
 
-        return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
+        for val in handVal:
+            if val in counts:
+                counts[val] += 1
+            else:
+                counts[val] = 1
+
+        highestPair = None
+        for i in counts:
+            if counts[i] == 2:
+                if highestPair is None or i > highestPair:
+                    highestPair = i
+
+        if highestPair is not None:
+            kickers = []
+            for val in handVal:
+                if len(kickers) == 3:
+                    break
+                if val != highestPair:
+                    kickers.append(val)
+            return (1, highestPair, kickers[0], kickers[1], kickers[2])
+        else:
+            return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
 
 
     def run(self):
-        print("Starting Game...")
         print("Players:", self.players)
 
         self.deck.shuffle()

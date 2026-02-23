@@ -39,6 +39,11 @@ class Game:
             else:
                 counts[val] = 1
 
+        quadVal = 0
+        for val in counts:
+            if counts[val] == 4:
+                quadVal = val
+
         tripleVals = []
         for val in counts:
             if counts[val] == 3:
@@ -51,7 +56,14 @@ class Game:
                 pairVals.append(val)
         pairVals.sort(reverse=True)
 
-        if len(tripleVals) >= 1 and (len(pairVals) >= 1 or len(tripleVals) >= 2):
+        if quadVal:
+            kicker = 0
+            for val in handVal:
+                if val != quadVal:
+                    kicker = val
+                    break
+            return (7, quadVal, kicker)
+        elif len(tripleVals) >= 1 and (len(pairVals) >= 1 or len(tripleVals) >= 2):
             if len(pairVals) >= 1:
                 return (6, tripleVals[0], pairVals[0])
             else:

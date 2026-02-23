@@ -44,22 +44,26 @@ class Game:
         player1Cards = self.player1Hand + self.board
         bestValue = self.rankValue(player1Cards[0])
         bestCard = player1Cards[0]
-        for i in range(1, 7):
-            newValue = self.rankValue(player1Cards[i])
+
+        for card in player1Cards:
+            newValue = self.rankValue(card)
             if newValue > bestValue:
                 bestValue = newValue
-                bestCard = player1Cards[i]
+                bestCard = card
+
         player1Max = bestValue
         player1HighCard = bestCard
 
         player2Cards = self.player2Hand + self.board
         bestValue = self.rankValue(player2Cards[0])
         bestCard = player2Cards[0]
-        for i in range(1, 7):
-            newValue = self.rankValue(player2Cards[i])
+
+        for card in player2Cards:
+            newValue = self.rankValue(card)
             if newValue > bestValue:
                 bestValue = newValue
-                bestCard = player2Cards[i]
+                bestCard = card
+
         player2Max = bestValue
         player2HighCard = bestCard
 

@@ -23,6 +23,16 @@ class Game:
             "J": 11, "Q": 12, "K": 13, "A": 14
         }
         return values[card.rank]
+    
+
+    def evaluateHand(self, cards):
+        handVal = []
+        for card in cards:
+            handVal.append(self.rankValue(card))
+
+        handVal.sort(reverse=True)
+
+        return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
 
 
     def run(self):
@@ -41,35 +51,12 @@ class Game:
         print(self.player2Hand)
         print(self.board)
 
-        player1Cards = self.player1Hand + self.board
-        bestValue = self.rankValue(player1Cards[0])
-        bestCard = player1Cards[0]
+        p1Score = self.evaluateHand(self.player1Hand + self.board)
+        p2Score = self.evaluateHand(self.player2Hand + self.board)
 
-        for card in player1Cards:
-            newValue = self.rankValue(card)
-            if newValue > bestValue:
-                bestValue = newValue
-                bestCard = card
-
-        player1Max = bestValue
-        player1HighCard = bestCard
-
-        player2Cards = self.player2Hand + self.board
-        bestValue = self.rankValue(player2Cards[0])
-        bestCard = player2Cards[0]
-
-        for card in player2Cards:
-            newValue = self.rankValue(card)
-            if newValue > bestValue:
-                bestValue = newValue
-                bestCard = card
-
-        player2Max = bestValue
-        player2HighCard = bestCard
-
-        if player1Max > player2Max:
-            print(self.players[0], "wins with", player1HighCard)
-        elif player1Max < player2Max:
-            print(self.players[1], "wins with", player2HighCard)
+        if p1Score > p2Score:
+            print(self.players[0], "wins with", p1Score)
+        elif p2Score > p1Score:
+            print(self.players[1], "wins with", p2Score)
         else:
-            print("Tie! (high card:", player1HighCard, ")")
+            print("Tie!", p1Score)

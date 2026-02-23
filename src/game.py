@@ -40,20 +40,29 @@ class Game:
             else:
                 counts[val] = 1
 
-        highestPair = None
-        for i in counts:
-            if counts[i] == 2:
-                if highestPair is None or i > highestPair:
-                    highestPair = i
+        pairVals = []
+        for val in counts:
+            if counts[val] == 2:
+                pairVals.append(val)
+        
+        pairVals.sort(reverse=True)
 
-        if highestPair is not None:
+        if len(pairVals) >= 2:
+            highPair = pairVals[0]
+            lowPair = pairVals[1]
+            for val in handVal:
+                if val != highPair and val != lowPair:
+                    kicker = val
+                    break
+            return (2, highPair, lowPair, kicker)
+        elif len(pairVals) == 1:
             kickers = []
             for val in handVal:
                 if len(kickers) == 3:
                     break
-                if val != highestPair:
+                if val != pairVals[0]:
                     kickers.append(val)
-            return (1, highestPair, kickers[0], kickers[1], kickers[2])
+            return (1, pairVals[0], kickers[0], kickers[1], kickers[2])
         else:
             return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
 

@@ -1,4 +1,5 @@
 from .deck import Deck
+from .constants import VALUE_TO_RANK
 
 class Game:
     def __init__(self):
@@ -16,30 +17,12 @@ class Game:
         self.player2Hand.append(self.deck.deal())
 
 
-    def rankToValue(self, card):
-        values = {
-            "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
-            "7": 7, "8": 8, "9": 9, "10": 10,
-            "J": 11, "Q": 12, "K": 13, "A": 14
-        }
-        return values[card.rank]
-    
-    
-    def valueToRank(self, value):
-        values = {
-            2: "2", 3: "3", 4: "4", 5: "5", 6: "6",
-            7: "7", 8: "8", 9: "9", 10: "10",
-            11: "J", 12: "Q", 13: "K", 14: "A"
-        }
-        return values[value]
-
-
     def evaluateHand(self, cards):
         handVal = []
         counts = {}
 
         for card in cards:
-            handVal.append(self.rankToValue(card))
+            handVal.append(card.value)
         handVal.sort(reverse=True)
 
         for val in handVal:
@@ -109,35 +92,35 @@ class Game:
         handType = score[0]
 
         if handType == 7:
-            quad = self.valueToRank(score[1])
-            kicker = self.valueToRank(score[2])
+            quad = VALUE_TO_RANK[score[1]]
+            kicker = VALUE_TO_RANK[score[2]]
             return f"Four of a kind: {quad}s ({kicker} kicker)"
         elif handType == 6:
-            triple = self.valueToRank(score[1])
-            pair = self.valueToRank(score[2])
+            triple = VALUE_TO_RANK[score[1]]
+            pair = VALUE_TO_RANK[score[2]]
             return f"Full House: {triple}s full of {pair}s"
         elif handType == 3:
-            triple = self.valueToRank(score[1])
-            k1 = self.valueToRank(score[2])
-            k2 = self.valueToRank(score[3])
+            triple = VALUE_TO_RANK[score[1]]
+            k1 = VALUE_TO_RANK[score[2]]
+            k2 = VALUE_TO_RANK[score[3]]
             return f"Three of a kind: {triple}s ({k1} {k2} kickers)"
         elif handType == 2:
-            highPair = self.valueToRank(score[1])
-            lowPair = self.valueToRank(score[2])
-            kicker = self.valueToRank(score[3])
+            highPair = VALUE_TO_RANK[score[1]]
+            lowPair = VALUE_TO_RANK[score[2]]
+            kicker = VALUE_TO_RANK[score[3]]
             return f"Two pair: {highPair}s and {lowPair}s ({kicker} kicker)"
         elif handType == 1:
-            pair = self.valueToRank(score[1])
-            k1 = self.valueToRank(score[2])
-            k2 = self.valueToRank(score[3])
-            k3 = self.valueToRank(score[4])
+            pair = VALUE_TO_RANK[score[1]]
+            k1 = VALUE_TO_RANK[score[2]]
+            k2 = VALUE_TO_RANK[score[3]]
+            k3 = VALUE_TO_RANK[score[4]]
             return f"Pair: {pair}s ({k1} {k2} {k3} kickers)"
         elif handType == 0:
-            v1 = self.valueToRank(score[1])
-            v2 = self.valueToRank(score[2])
-            v3 = self.valueToRank(score[3])
-            v4 = self.valueToRank(score[4])
-            v5 = self.valueToRank(score[5])
+            v1 = VALUE_TO_RANK[score[1]]
+            v2 = VALUE_TO_RANK[score[2]]
+            v3 = VALUE_TO_RANK[score[3]]
+            v4 = VALUE_TO_RANK[score[4]]
+            v5 = VALUE_TO_RANK[score[5]]
             return f"High card: {v1} {v2} {v3} {v4} {v5}"
 
 

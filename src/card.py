@@ -1,7 +1,9 @@
+from .constants import RANK_TO_VALUE
 class Card:
     def __init__(self, rank, suit):
         self.rank = rank
         self.suit = suit
+        self.value = RANK_TO_VALUE[rank]
 
     def __str__(self):
         return self.rank + self.suit

@@ -18,18 +18,28 @@ class Game:
 
 
     def evaluateHand(self, cards):
-        handVal = []
+        handVals = []
         counts = {}
+        suits = {"S": [], "H": [], "D": [], "C": []}
+        flushVals = []
 
         for card in cards:
-            handVal.append(card.value)
-        handVal.sort(reverse=True)
+            handVals.append(card.value)
+            suits[card.suit].append(card.value)
+        handVals.sort(reverse=True)
 
-        for val in handVal:
+        for val in handVals:
             if val in counts:
                 counts[val] += 1
             else:
                 counts[val] = 1
+
+        for flushSuit in suits:
+            if len(suits[flushSuit]) >= 5:
+                suits[flushSuit].sort(reverse=True)
+                for i in range(5):
+                    flushVals.append(suits[flushSuit][i])
+                break
 
         quadVal = 0
         for val in counts:
@@ -50,7 +60,7 @@ class Game:
 
         if quadVal:
             kicker = 0
-            for val in handVal:
+            for val in handVals:
                 if val != quadVal:
                     kicker = val
                     break
@@ -60,9 +70,11 @@ class Game:
                 return (6, tripleVals[0], pairVals[0])
             else:
                 return (6, tripleVals[0], tripleVals[1])
+        elif flushVals:
+            return (5, flushVals[0], flushVals[1], flushVals[2], flushVals[3], flushVals[4])
         elif len(tripleVals) >= 1:
             kickers = []
-            for val in handVal:
+            for val in handVals:
                 if len(kickers) == 2:
                     break
                 if val != tripleVals[0]:
@@ -71,21 +83,21 @@ class Game:
         elif len(pairVals) >= 2:
             highPair = pairVals[0]
             lowPair = pairVals[1]
-            for val in handVal:
+            for val in handVals:
                 if val != highPair and val != lowPair:
                     kicker = val
                     break
             return (2, highPair, lowPair, kicker)
         elif len(pairVals) == 1:
             kickers = []
-            for val in handVal:
+            for val in handVals:
                 if len(kickers) == 3:
                     break
                 if val != pairVals[0]:
                     kickers.append(val)
             return (1, pairVals[0], kickers[0], kickers[1], kickers[2])
         else:
-            return (0, handVal[0], handVal[1], handVal[2], handVal[3], handVal[4])
+            return (0, handVals[0], handVals[1], handVals[2], handVals[3], handVals[4])
 
 
     def formatHand(self, score):
@@ -99,6 +111,13 @@ class Game:
             triple = VALUE_TO_RANK[score[1]]
             pair = VALUE_TO_RANK[score[2]]
             return f"Full House: {triple}s full of {pair}s"
+        elif handType == 5:
+            v1 = VALUE_TO_RANK[score[1]]
+            v2 = VALUE_TO_RANK[score[2]]
+            v3 = VALUE_TO_RANK[score[3]]
+            v4 = VALUE_TO_RANK[score[4]]
+            v5 = VALUE_TO_RANK[score[5]]
+            return f"Flush: {v1} {v2} {v3} {v4} {v5}"
         elif handType == 3:
             triple = VALUE_TO_RANK[score[1]]
             k1 = VALUE_TO_RANK[score[2]]

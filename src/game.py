@@ -10,11 +10,62 @@ class Game:
         self.board = []
 
 
+    def run(self):
+        self.newHand()
+
+        print("Players:", self.players)
+
+        self.deck.shuffle()
+        self.dealHands()
+
+        self.dealFlop()
+        self.dealTurn()
+        self.dealRiver()
+
+        self.showState()
+
+        p1Score = self.evaluateHand(self.player1Hand + self.board)
+        p2Score = self.evaluateHand(self.player2Hand + self.board)
+
+        if p1Score > p2Score:
+            print(self.players[0], "wins with", self.formatHand(p1Score))
+        elif p2Score > p1Score:
+            print(self.players[1], "wins with", self.formatHand(p2Score))
+        else:
+            print("Tie!", self.formatHand(p1Score))
+
+
+    def newHand(self):
+        self.player1Hand = []
+        self.player2Hand = []
+        self.board = []
+        self.deck = Deck()
+
+
     def dealHands(self):
         self.player1Hand.append(self.deck.deal())
         self.player1Hand.append(self.deck.deal())
         self.player2Hand.append(self.deck.deal())
         self.player2Hand.append(self.deck.deal())
+
+
+    def dealFlop(self):
+        for _ in range(3):
+            self.board.append(self.deck.deal())
+
+
+    def dealTurn(self):
+        self.board.append(self.deck.deal())
+
+
+    def dealRiver(self):
+        self.board.append(self.deck.deal())
+
+
+    def showState(self):
+        print(self.player1Hand)
+        print(self.player2Hand)
+        print(self.board)
 
 
     def evaluateHand(self, cards):
@@ -27,6 +78,9 @@ class Game:
             handVals.append(card.value)
             suits[card.suit].append(card.value)
         handVals.sort(reverse=True)
+
+        
+
 
         for val in handVals:
             if val in counts:
@@ -65,13 +119,16 @@ class Game:
                     kicker = val
                     break
             return (7, quadVal, kicker)
+
         elif len(tripleVals) >= 1 and (len(pairVals) >= 1 or len(tripleVals) >= 2):
             if len(pairVals) >= 1:
                 return (6, tripleVals[0], pairVals[0])
             else:
                 return (6, tripleVals[0], tripleVals[1])
+
         elif flushVals:
             return (5, flushVals[0], flushVals[1], flushVals[2], flushVals[3], flushVals[4])
+
         elif len(tripleVals) >= 1:
             kickers = []
             for val in handVals:
@@ -80,6 +137,7 @@ class Game:
                 if val != tripleVals[0]:
                     kickers.append(val)
             return (3, tripleVals[0], kickers[0], kickers[1])
+
         elif len(pairVals) >= 2:
             highPair = pairVals[0]
             lowPair = pairVals[1]
@@ -88,6 +146,7 @@ class Game:
                     kicker = val
                     break
             return (2, highPair, lowPair, kicker)
+
         elif len(pairVals) == 1:
             kickers = []
             for val in handVals:
@@ -96,6 +155,7 @@ class Game:
                 if val != pairVals[0]:
                     kickers.append(val)
             return (1, pairVals[0], kickers[0], kickers[1], kickers[2])
+
         else:
             return (0, handVals[0], handVals[1], handVals[2], handVals[3], handVals[4])
 
@@ -141,54 +201,3 @@ class Game:
             v4 = VALUE_TO_RANK[score[4]]
             v5 = VALUE_TO_RANK[score[5]]
             return f"High card: {v1} {v2} {v3} {v4} {v5}"
-
-
-    def run(self):
-        self.newHand()
-
-        print("Players:", self.players)
-
-        self.deck.shuffle()
-        self.dealHands()
-
-        self.dealFlop()
-        self.dealTurn()
-        self.dealRiver()
-
-        self.showState()
-
-        p1Score = self.evaluateHand(self.player1Hand + self.board)
-        p2Score = self.evaluateHand(self.player2Hand + self.board)
-
-        if p1Score > p2Score:
-            print(self.players[0], "wins with", self.formatHand(p1Score))
-        elif p2Score > p1Score:
-            print(self.players[1], "wins with", self.formatHand(p2Score))
-        else:
-            print("Tie!", self.formatHand(p1Score))
-
-
-    def dealFlop(self):
-        for _ in range(3):
-            self.board.append(self.deck.deal())
-
-
-    def dealTurn(self):
-        self.board.append(self.deck.deal())
-
-
-    def dealRiver(self):
-        self.board.append(self.deck.deal())
-
-
-    def showState(self):
-        print(self.player1Hand)
-        print(self.player2Hand)
-        print(self.board)
-
-    
-    def newHand(self):
-        self.player1Hand = []
-        self.player2Hand = []
-        self.board = []
-        self.deck = Deck()

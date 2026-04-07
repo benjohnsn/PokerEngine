@@ -73,14 +73,31 @@ class Game:
         counts = {}
         suits = {"S": [], "H": [], "D": [], "C": []}
         flushVals = []
+        aceLowStraight = {14, 2, 3, 4, 5}
 
         for card in cards:
             handVals.append(card.value)
             suits[card.suit].append(card.value)
         handVals.sort(reverse=True)
 
-        
+        straightSet = set(handVals)
+        straightVals = list(straightSet)
+        straightVals.sort(reverse=True)
+        straightHighVal = 0
+        run = 1
 
+        for i in range(0, len(straightVals) - 1):
+            if straightVals[i] == straightVals[i+1] + 1:
+                run += 1
+            else:
+                run = 1
+            if run == 5:
+                straightHighVal = straightVals[i-3]
+                break
+
+        if straightHighVal == 0:
+            if aceLowStraight.issubset(straightSet):
+                straightHighVal = 5
 
         for val in handVals:
             if val in counts:
@@ -128,6 +145,9 @@ class Game:
 
         elif flushVals:
             return (5, flushVals[0], flushVals[1], flushVals[2], flushVals[3], flushVals[4])
+
+        elif straightHighVal:
+            return (4, straightHighVal)
 
         elif len(tripleVals) >= 1:
             kickers = []
@@ -178,6 +198,16 @@ class Game:
             v4 = VALUE_TO_RANK[score[4]]
             v5 = VALUE_TO_RANK[score[5]]
             return f"Flush: {v1} {v2} {v3} {v4} {v5}"
+        elif handType == 4:
+            straightHighVal = score[1]
+            if straightHighVal == 5:
+                return f"Straight: 5 4 3 2 A"
+            v1 = VALUE_TO_RANK[straightHighVal]
+            v2 = VALUE_TO_RANK[straightHighVal - 1]
+            v3 = VALUE_TO_RANK[straightHighVal - 2]
+            v4 = VALUE_TO_RANK[straightHighVal - 3]
+            v5 = VALUE_TO_RANK[straightHighVal - 4]
+            return f"Straight: {v1} {v2} {v3} {v4} {v5}"
         elif handType == 3:
             triple = VALUE_TO_RANK[score[1]]
             k1 = VALUE_TO_RANK[score[2]]

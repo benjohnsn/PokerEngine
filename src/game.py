@@ -1,9 +1,10 @@
 from .deck import Deck
+from .player import Player
 from .constants import VALUE_TO_RANK
 
 class Game:
     def __init__(self):
-        self.players = ["Player 1", "Player 2"]
+        self.players = [Player("Player 1"), Player("Player 2")]
         self.deck = Deck()
         self.player1Hand = []
         self.player2Hand = []
@@ -36,10 +37,10 @@ class Game:
 
 
     def newHand(self):
-        self.player1Hand = []
-        self.player2Hand = []
         self.board = []
         self.deck = Deck()
+        for player in self.players:
+            player.newHand()
 
 
     def dealHands(self):

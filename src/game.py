@@ -6,17 +6,14 @@ class Game:
     def __init__(self):
         self.players = [Player("Player 1"), Player("Player 2")]
         self.deck = Deck()
-        self.player1Hand = []
-        self.player2Hand = []
         self.board = []
+        self.pot = 0
 
 
     def run(self):
         self.newHand()
-
-        print("Players:", self.players)
-
         self.deck.shuffle()
+        self.postBlinds()
         self.dealHands()
 
         self.dealFlop()
@@ -25,8 +22,8 @@ class Game:
 
         self.showState()
 
-        p1Score = self.evaluateHand(self.player1Hand + self.board)
-        p2Score = self.evaluateHand(self.player2Hand + self.board)
+        p1Score = self.evaluateHand(self.players[0].hand + self.board)
+        p2Score = self.evaluateHand(self.players[1].hand + self.board)
 
         if p1Score > p2Score:
             print(self.players[0], "wins with", self.formatHand(p1Score))
@@ -39,15 +36,31 @@ class Game:
     def newHand(self):
         self.board = []
         self.deck = Deck()
+        self.pot = 0
         for player in self.players:
             player.newHand()
 
 
+    def postBlinds(self):
+        smallBlind = 5
+        bigBlind = 10
+
+        sbPlayer = self.players[0]
+        bbPlayer = self.players[1]
+
+        sbPlayer.stack -= smallBlind
+        sbPlayer.current_bet = smallBlind
+
+        bbPlayer.stack -= bigBlind
+        bbPlayer.current_bet = bigBlind
+
+        self.pot += smallBlind + bigBlind
+
+
     def dealHands(self):
-        self.player1Hand.append(self.deck.deal())
-        self.player1Hand.append(self.deck.deal())
-        self.player2Hand.append(self.deck.deal())
-        self.player2Hand.append(self.deck.deal())
+        for _ in range(2):
+            for player in self.players:
+                player.hand.append(self.deck.deal())
 
 
     def dealFlop(self):
@@ -64,9 +77,10 @@ class Game:
 
 
     def showState(self):
-        print(self.player1Hand)
-        print(self.player2Hand)
-        print(self.board)
+        for player in self.players:
+            print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.current_bet)
+        print("Board:", self.board)
+        print("Pot:", self.pot)
 
 
     def evaluateHand(self, cards):

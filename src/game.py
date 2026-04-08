@@ -73,7 +73,6 @@ class Game:
         valueCounts = {}
         suits = {"S": [], "H": [], "D": [], "C": []}
         flushVals = []
-        aceLowStraight = {14, 2, 3, 4, 5}
 
         for card in cards:
             handVals.append(card.value)
@@ -83,44 +82,10 @@ class Game:
         straightFlushHighVal = 0
         for flushSuit in suits:
             if len(suits[flushSuit]) >= 5:
-                suits[flushSuit].sort(reverse=True)
-                straightFlushSet = set(suits[flushSuit])
-                straightFlushVals = list(straightFlushSet)
-                straightFlushVals.sort(reverse=True)
-                run = 1
-
-                for i in range(0, len(straightFlushVals) - 1):
-                    if straightFlushVals[i] == straightFlushVals[i+1] + 1:
-                        run += 1
-                    else:
-                        run = 1
-                    if run == 5:
-                        straightFlushHighVal = straightFlushVals[i-3]
-                        break
-
-                if straightFlushHighVal == 0:
-                    if aceLowStraight.issubset(straightFlushSet):
-                        straightFlushHighVal = 5
+                straightFlushHighVal = self.getStraightHigh(suits[flushSuit])
                 break
 
-        straightSet = set(handVals)
-        straightVals = list(straightSet)
-        straightVals.sort(reverse=True)
-        straightHighVal = 0
-        run = 1
-
-        for i in range(len(straightVals) - 1):
-            if straightVals[i] == straightVals[i+1] + 1:
-                run += 1
-            else:
-                run = 1
-            if run == 5:
-                straightHighVal = straightVals[i-3]
-                break
-
-        if straightHighVal == 0:
-            if aceLowStraight.issubset(straightSet):
-                straightHighVal = 5
+        straightHighVal = self.getStraightHigh(handVals)
 
         for val in handVals:
             if val in valueCounts:
@@ -204,6 +169,31 @@ class Game:
 
         else:
             return (0, handVals[0], handVals[1], handVals[2], handVals[3], handVals[4])
+
+
+    def getStraightHigh(self, handVals):
+        aceLowStraight = {14, 2, 3, 4, 5}
+
+        straightSet = set(handVals)
+        straightVals = list(straightSet)
+        straightVals.sort(reverse=True)
+        straightHighVal = 0
+        run = 1
+
+        for i in range(len(straightVals) - 1):
+            if straightVals[i] == straightVals[i+1] + 1:
+                run += 1
+            else:
+                run = 1
+            if run == 5:
+                straightHighVal = straightVals[i-3]
+                break
+
+        if straightHighVal == 0:
+            if aceLowStraight.issubset(straightSet):
+                straightHighVal = 5
+
+        return straightHighVal
 
 
     def formatHand(self, score):

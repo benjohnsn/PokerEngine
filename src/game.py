@@ -70,7 +70,7 @@ class Game:
 
     def evaluateHand(self, cards):
         handVals = []
-        counts = {}
+        valueCounts = {}
         suits = {"S": [], "H": [], "D": [], "C": []}
         flushVals = []
         aceLowStraight = {14, 2, 3, 4, 5}
@@ -80,13 +80,36 @@ class Game:
             suits[card.suit].append(card.value)
         handVals.sort(reverse=True)
 
+        straightFlushHighVal = 0
+        for flushSuit in suits:
+            if len(suits[flushSuit]) >= 5:
+                suits[flushSuit].sort(reverse=True)
+                straightFlushSet = set(suits[flushSuit])
+                straightFlushVals = list(straightFlushSet)
+                straightFlushVals.sort(reverse=True)
+                run = 1
+
+                for i in range(0, len(straightFlushVals) - 1):
+                    if straightFlushVals[i] == straightFlushVals[i+1] + 1:
+                        run += 1
+                    else:
+                        run = 1
+                    if run == 5:
+                        straightFlushHighVal = straightFlushVals[i-3]
+                        break
+
+                if straightFlushHighVal == 0:
+                    if aceLowStraight.issubset(straightFlushSet):
+                        straightFlushHighVal = 5
+                break
+
         straightSet = set(handVals)
         straightVals = list(straightSet)
         straightVals.sort(reverse=True)
         straightHighVal = 0
         run = 1
 
-        for i in range(0, len(straightVals) - 1):
+        for i in range(len(straightVals) - 1):
             if straightVals[i] == straightVals[i+1] + 1:
                 run += 1
             else:
@@ -100,10 +123,10 @@ class Game:
                 straightHighVal = 5
 
         for val in handVals:
-            if val in counts:
-                counts[val] += 1
+            if val in valueCounts:
+                valueCounts[val] += 1
             else:
-                counts[val] = 1
+                valueCounts[val] = 1
 
         for flushSuit in suits:
             if len(suits[flushSuit]) >= 5:
@@ -113,23 +136,26 @@ class Game:
                 break
 
         quadVal = 0
-        for val in counts:
-            if counts[val] == 4:
+        for val in valueCounts:
+            if valueCounts[val] == 4:
                 quadVal = val
 
         tripleVals = []
-        for val in counts:
-            if counts[val] == 3:
+        for val in valueCounts:
+            if valueCounts[val] == 3:
                 tripleVals.append(val)
         tripleVals.sort(reverse=True)
 
         pairVals = []
-        for val in counts:
-            if counts[val] == 2:
+        for val in valueCounts:
+            if valueCounts[val] == 2:
                 pairVals.append(val)
         pairVals.sort(reverse=True)
 
-        if quadVal:
+        if straightFlushHighVal:
+            return (8, straightFlushHighVal)
+
+        elif quadVal:
             kicker = 0
             for val in handVals:
                 if val != quadVal:
@@ -183,14 +209,27 @@ class Game:
     def formatHand(self, score):
         handType = score[0]
 
-        if handType == 7:
+        if handType == 8:
+            straightFlushHighVal = score[1]
+            if straightFlushHighVal == 5:
+                return f"Straight Flush: 5 4 3 2 A"
+            v1 = VALUE_TO_RANK[straightFlushHighVal]
+            v2 = VALUE_TO_RANK[straightFlushHighVal - 1]
+            v3 = VALUE_TO_RANK[straightFlushHighVal - 2]
+            v4 = VALUE_TO_RANK[straightFlushHighVal - 3]
+            v5 = VALUE_TO_RANK[straightFlushHighVal - 4]
+            return f"Straight Flush: {v1} {v2} {v3} {v4} {v5}"
+
+        elif handType == 7:
             quad = VALUE_TO_RANK[score[1]]
             kicker = VALUE_TO_RANK[score[2]]
             return f"Four of a kind: {quad}s ({kicker} kicker)"
+
         elif handType == 6:
             triple = VALUE_TO_RANK[score[1]]
             pair = VALUE_TO_RANK[score[2]]
             return f"Full House: {triple}s full of {pair}s"
+
         elif handType == 5:
             v1 = VALUE_TO_RANK[score[1]]
             v2 = VALUE_TO_RANK[score[2]]
@@ -198,6 +237,7 @@ class Game:
             v4 = VALUE_TO_RANK[score[4]]
             v5 = VALUE_TO_RANK[score[5]]
             return f"Flush: {v1} {v2} {v3} {v4} {v5}"
+
         elif handType == 4:
             straightHighVal = score[1]
             if straightHighVal == 5:
@@ -208,22 +248,26 @@ class Game:
             v4 = VALUE_TO_RANK[straightHighVal - 3]
             v5 = VALUE_TO_RANK[straightHighVal - 4]
             return f"Straight: {v1} {v2} {v3} {v4} {v5}"
+
         elif handType == 3:
             triple = VALUE_TO_RANK[score[1]]
             k1 = VALUE_TO_RANK[score[2]]
             k2 = VALUE_TO_RANK[score[3]]
             return f"Three of a kind: {triple}s ({k1} {k2} kickers)"
+
         elif handType == 2:
             highPair = VALUE_TO_RANK[score[1]]
             lowPair = VALUE_TO_RANK[score[2]]
             kicker = VALUE_TO_RANK[score[3]]
             return f"Two pair: {highPair}s and {lowPair}s ({kicker} kicker)"
+
         elif handType == 1:
             pair = VALUE_TO_RANK[score[1]]
             k1 = VALUE_TO_RANK[score[2]]
             k2 = VALUE_TO_RANK[score[3]]
             k3 = VALUE_TO_RANK[score[4]]
             return f"Pair: {pair}s ({k1} {k2} {k3} kickers)"
+
         elif handType == 0:
             v1 = VALUE_TO_RANK[score[1]]
             v2 = VALUE_TO_RANK[score[2]]

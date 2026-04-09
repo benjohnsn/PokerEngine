@@ -4,7 +4,7 @@ from .constants import VALUE_TO_RANK
 
 class Game:
     def __init__(self):
-        self.players = [Player("Player 1"), Player("Player 2")]
+        self.players = [Player("Hero"), Player("Villain")]
         self.deck = Deck()
         self.board = []
         self.pot = 0
@@ -14,11 +14,25 @@ class Game:
         self.newHand()
         self.deck.shuffle()
         self.postBlinds()
-        self.dealHands()
 
+        self.dealHands()
+        self.bettingRound()
+        self.resetCurrentBets()
+
+        self.burn()
         self.dealFlop()
+        self.bettingRound()
+        self.resetCurrentBets()
+
+        self.burn()
         self.dealTurn()
+        self.bettingRound()
+        self.resetCurrentBets()
+
+        self.burn()
         self.dealRiver()
+        self.bettingRound()
+        self.resetCurrentBets()
 
         self.showState()
 
@@ -49,18 +63,65 @@ class Game:
         bbPlayer = self.players[1]
 
         sbPlayer.stack -= smallBlind
-        sbPlayer.current_bet = smallBlind
+        sbPlayer.currentBet = smallBlind
 
         bbPlayer.stack -= bigBlind
-        bbPlayer.current_bet = bigBlind
+        bbPlayer.currentBet = bigBlind
 
         self.pot += smallBlind + bigBlind
+
+
+    def getAmountToCall(self, player):
+        highestBet = 0
+
+        for otherPlayer in self.players:
+            if otherPlayer.currentBet > highestBet:
+                highestBet = otherPlayer.currentBet
+
+        return highestBet - player.currentBet
+
+
+    def call(self, player):
+        amountToCall = self.getAmountToCall(player)
+        player.stack -= amountToCall
+        player.currentBet += amountToCall
+        self.pot += amountToCall
+
+
+    def check(self, player):
+        pass
+
+
+    def fold(self, player):
+        player.folded = True
+
+
+    def bettingRound(self):
+        for player in self.players:
+            if player.folded:
+                continue
+            amountToCall = self.getAmountToCall(player)
+            if amountToCall == 0:
+                self.check(player)
+                print(player.name, "checks")
+            else:
+                self.call(player)
+                print(player.name, "calls", amountToCall)
+
+
+    def resetCurrentBets(self):
+        for player in self.players:
+            player.currentBet = 0
 
 
     def dealHands(self):
         for _ in range(2):
             for player in self.players:
                 player.hand.append(self.deck.deal())
+
+
+    def burn(self):
+        self.deck.deal()
 
 
     def dealFlop(self):
@@ -78,7 +139,7 @@ class Game:
 
     def showState(self):
         for player in self.players:
-            print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.current_bet)
+            print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.currentBet)
         print("Board:", self.board)
         print("Pot:", self.pot)
 

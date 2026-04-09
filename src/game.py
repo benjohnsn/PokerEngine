@@ -17,21 +17,33 @@ class Game:
 
         self.dealHands()
         self.bettingRound()
+        if self.countActivePlayers() == 1:
+            self.handFoldWin()
+            return
         self.resetCurrentBets()
 
         self.burn()
         self.dealFlop()
         self.bettingRound()
+        if self.countActivePlayers() == 1:
+            self.handFoldWin()
+            return
         self.resetCurrentBets()
 
         self.burn()
         self.dealTurn()
         self.bettingRound()
+        if self.countActivePlayers() == 1:
+            self.handFoldWin()
+            return
         self.resetCurrentBets()
 
         self.burn()
         self.dealRiver()
         self.bettingRound()
+        if self.countActivePlayers() == 1:
+            self.handFoldWin()
+            return
         self.resetCurrentBets()
 
         self.showState()
@@ -103,6 +115,25 @@ class Game:
     def resetCurrentBets(self):
         for player in self.players:
             player.currentBet = 0
+
+
+    def countActivePlayers(self):
+        count = 0
+        for player in self.players:
+            if not player.folded:
+                count += 1
+        return count
+
+
+    def getRemainingPlayer(self):
+        for player in self.players:
+            if not player.folded:
+                return player
+
+
+    def handFoldWin(self):
+        winner = self.getRemainingPlayer()
+        print(winner.name, "wins (opponent folded)")
 
 
     def dealHands(self):

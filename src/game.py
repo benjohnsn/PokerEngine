@@ -134,7 +134,23 @@ class Game:
 
     def handFoldWin(self):
         winner = self.getRemainingPlayer()
+        self.awardPot(winner)
         print(winner.name, "wins (opponent folded)")
+
+
+
+    def awardPot(self, winners):
+        share = self.pot // len(winners)
+        remainder = self.pot % len(winners)
+
+        for player in winners:
+            player.stack += share
+
+        # distribute remaining chips clockwise from left of the dealer (poker rule for uneven pot)
+        for i in range(remainder):
+            winners[i].stack += 1
+
+        self.pot = 0
 
 
     def dealHands(self):
@@ -172,8 +188,11 @@ class Game:
         p2Score = self.evaluator.evaluateHand(self.players[1].hand + self.board)
 
         if p1Score > p2Score:
+            self.awardPot([self.players[0]])
             print(self.players[0], "wins with", self.evaluator.formatHand(p1Score))
         elif p2Score > p1Score:
+            self.awardPot([self.players[1]])
             print(self.players[1], "wins with", self.evaluator.formatHand(p2Score))
         else:
+            self.awardPot(self.players)
             print("Tie!", self.evaluator.formatHand(p1Score))

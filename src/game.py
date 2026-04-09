@@ -35,16 +35,7 @@ class Game:
         self.resetCurrentBets()
 
         self.showState()
-
-        p1Score = self.evaluateHand(self.players[0].hand + self.board)
-        p2Score = self.evaluateHand(self.players[1].hand + self.board)
-
-        if p1Score > p2Score:
-            print(self.players[0], "wins with", self.formatHand(p1Score))
-        elif p2Score > p1Score:
-            print(self.players[1], "wins with", self.formatHand(p2Score))
-        else:
-            print("Tie!", self.formatHand(p1Score))
+        self.showdown()
 
 
     def newHand(self):
@@ -142,6 +133,18 @@ class Game:
             print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.currentBet)
         print("Board:", self.board)
         print("Pot:", self.pot)
+
+
+    def showdown(self):
+        p1Score = self.evaluateHand(self.players[0].hand + self.board)
+        p2Score = self.evaluateHand(self.players[1].hand + self.board)
+
+        if p1Score > p2Score:
+            print(self.players[0], "wins with", self.formatHand(p1Score))
+        elif p2Score > p1Score:
+            print(self.players[1], "wins with", self.formatHand(p2Score))
+        else:
+            print("Tie!", self.formatHand(p1Score))
 
 
     def evaluateHand(self, cards):

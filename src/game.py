@@ -6,9 +6,10 @@ class Game:
     def __init__(self):
         self.players = [Player("Hero"), Player("Villain")]
         self.deck = Deck()
+        self.evaluator = Evaluator()
+
         self.board = []
         self.pot = 0
-        self.evaluator = Evaluator()
 
 
     def run(self):
@@ -75,14 +76,17 @@ class Game:
         self.pot += smallBlind + bigBlind
 
 
-    def getAmountToCall(self, player):
-        highestBet = 0
-
-        for otherPlayer in self.players:
-            if otherPlayer.currentBet > highestBet:
-                highestBet = otherPlayer.currentBet
-
-        return highestBet - player.currentBet
+    def bettingRound(self):
+        for player in self.players:
+            if player.folded:
+                continue
+            amountToCall = self.getAmountToCall(player)
+            if amountToCall == 0:
+                self.check(player)
+                print(player.name, "checks")
+            else:
+                self.call(player)
+                print(player.name, "calls", amountToCall)
 
 
     def call(self, player):
@@ -100,17 +104,14 @@ class Game:
         player.folded = True
 
 
-    def bettingRound(self):
-        for player in self.players:
-            if player.folded:
-                continue
-            amountToCall = self.getAmountToCall(player)
-            if amountToCall == 0:
-                self.check(player)
-                print(player.name, "checks")
-            else:
-                self.call(player)
-                print(player.name, "calls", amountToCall)
+    def getAmountToCall(self, player):
+        highestBet = 0
+
+        for otherPlayer in self.players:
+            if otherPlayer.currentBet > highestBet:
+                highestBet = otherPlayer.currentBet
+
+        return highestBet - player.currentBet
 
 
     def resetCurrentBets(self):
@@ -136,6 +137,21 @@ class Game:
         winner = self.getRemainingPlayer()
         self.awardPot([winner])
         print(winner.name, "wins (opponent folded)")
+
+
+    def showdown(self):
+        p1Score = self.evaluator.evaluateHand(self.players[0].hand + self.board)
+        p2Score = self.evaluator.evaluateHand(self.players[1].hand + self.board)
+
+        if p1Score > p2Score:
+            self.awardPot([self.players[0]])
+            print(self.players[0], "wins with", self.evaluator.formatHand(p1Score))
+        elif p2Score > p1Score:
+            self.awardPot([self.players[1]])
+            print(self.players[1], "wins with", self.evaluator.formatHand(p2Score))
+        else:
+            self.awardPot(self.players)
+            print("Tie!", self.evaluator.formatHand(p1Score))
 
 
     def awardPot(self, winners):
@@ -180,18 +196,3 @@ class Game:
             print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.currentBet)
         print("Board:", self.board)
         print("Pot:", self.pot)
-
-
-    def showdown(self):
-        p1Score = self.evaluator.evaluateHand(self.players[0].hand + self.board)
-        p2Score = self.evaluator.evaluateHand(self.players[1].hand + self.board)
-
-        if p1Score > p2Score:
-            self.awardPot([self.players[0]])
-            print(self.players[0], "wins with", self.evaluator.formatHand(p1Score))
-        elif p2Score > p1Score:
-            self.awardPot([self.players[1]])
-            print(self.players[1], "wins with", self.evaluator.formatHand(p2Score))
-        else:
-            self.awardPot(self.players)
-            print("Tie!", self.evaluator.formatHand(p1Score))

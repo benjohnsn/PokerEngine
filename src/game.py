@@ -134,9 +134,8 @@ class Game:
 
     def handFoldWin(self):
         winner = self.getRemainingPlayer()
-        self.awardPot(winner)
+        self.awardPot([winner])
         print(winner.name, "wins (opponent folded)")
-
 
 
     def awardPot(self, winners):

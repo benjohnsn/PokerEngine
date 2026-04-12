@@ -108,7 +108,7 @@ class TestGame(unittest.TestCase):
 
     def test_cannot_call_when_player_lacks_chips(self):
         self.game.postBlinds()
-        self.p1.stack = 3
+        self.p1.stack = 0
         self.assertFalse(self.game.canCall(self.p1))
 
     def test_is_valid_raise(self):
@@ -151,10 +151,33 @@ class TestGame(unittest.TestCase):
 
     def test_invalid_call_raises_value_error(self):
         self.game.postBlinds()
-        self.p1.stack = 3
+        self.p1.stack = 0
 
         with self.assertRaises(ValueError):
             self.game.call(self.p1)
+
+    def test_short_stack_can_call_all_in(self):
+        self.game.postBlinds()
+        self.p1.stack = 3
+
+        self.assertTrue(self.game.canCall(self.p1))
+
+    def test_call_uses_remaining_stack_when_player_is_short(self):
+        self.game.postBlinds()
+        self.p1.stack = 3
+
+        self.game.call(self.p1)
+
+        self.assertEqual(self.p1.stack, 0)
+        self.assertEqual(self.p1.currentBet, 8)
+        self.assertEqual(self.game.pot, 18)
+
+    def test_betting_round_complete_when_short_stack_is_all_in(self):
+        self.game.postBlinds()
+        self.p1.stack = 3
+        self.game.call(self.p1)
+
+        self.assertTrue(self.game.isBettingRoundComplete())
 
 if __name__ == "__main__":
     unittest.main()

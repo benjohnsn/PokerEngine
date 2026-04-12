@@ -94,11 +94,16 @@ class Game:
                 elif action == "check":
                     self.check(player)
                     print(player.name, "checks")
-                    
+
                 elif action == "call":
                     amountToCall = self.getAmountToCall(player)
                     self.call(player)
                     print(player.name, "calls", amountToCall)
+
+                elif action == "raise":
+                    targetBet = int(input("Enter total bet amount: "))
+                    self.raiseTo(player, targetBet)
+                    print(player.name, "raises to", targetBet)
 
             if self.isBettingRoundComplete():
                 return
@@ -111,14 +116,22 @@ class Game:
             validActions = ["check", "fold"]
             prompt = f"{player.name} - check or fold: "
         else:
-            validActions = ["call", "fold"]
-            prompt = f"{player.name} - call {amountToCall} or fold: "
+            validActions = ["call", "raise", "fold"]
+            prompt = f"{player.name} - call {amountToCall}, raise or fold: "
 
         while True:
             action = input(prompt).strip().lower()
             if action in validActions:
                 return action
             print("Invalid action. Try again.")
+
+
+    def fold(self, player):
+        player.folded = True
+
+
+    def check(self, player):
+        pass
 
 
     def call(self, player):
@@ -128,12 +141,12 @@ class Game:
         self.pot += amountToCall
 
 
-    def check(self, player):
-        pass
+    def raiseTo(self, player, targetBet):
+        additionalAmount = targetBet - player.currentBet
 
-
-    def fold(self, player):
-        player.folded = True
+        player.stack -= additionalAmount
+        player.currentBet = targetBet
+        self.pot += additionalAmount
 
 
     def getAmountToCall(self, player):

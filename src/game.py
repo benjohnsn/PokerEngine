@@ -10,6 +10,7 @@ class Game:
 
         self.board = []
         self.pot = 0
+        self.lastRaiser = None
 
 
     def run(self):
@@ -53,9 +54,11 @@ class Game:
 
 
     def newHand(self):
-        self.board = []
         self.deck = Deck()
+        self.board = []
         self.pot = 0
+        self.lastRaiser = None
+
         for player in self.players:
             player.newHand()
 
@@ -77,6 +80,9 @@ class Game:
 
 
     def bettingRound(self):
+        self.lastRaiser = None
+        playersActed = set()
+
         while True:
             for player in self.players:
                 if player.folded:
@@ -86,6 +92,7 @@ class Game:
                     return
                 
                 action = self.getPlayerAction(player)
+                playersActed.add(player)
 
                 if action == "fold":
                     self.fold(player)
@@ -103,9 +110,13 @@ class Game:
                 elif action == "raise":
                     targetBet = int(input("Enter total bet amount: "))
                     self.raiseTo(player, targetBet)
+                    playersActed = {player}
                     print(player.name, "raises to", targetBet)
 
-            if self.isBettingRoundComplete():
+                if self.lastRaiser and player == self.lastRaiser and len(playersActed) > 1:
+                    return
+            
+            if self.lastRaiser is None and self.isBettingRoundComplete():
                 return
 
 
@@ -160,6 +171,8 @@ class Game:
         player.stack -= raiseAmount
         player.currentBet += raiseAmount
         self.pot += raiseAmount
+
+        self.lastRaiser = player
 
 
     def canCheck(self, player):

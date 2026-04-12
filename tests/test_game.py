@@ -179,5 +179,39 @@ class TestGame(unittest.TestCase):
 
         self.assertTrue(self.game.isBettingRoundComplete())
 
+    def test_all_in_raise_uses_remaining_stack(self):
+        self.game.postBlinds()
+        self.p1.stack = 10
+
+        self.game.raiseTo(self.p1, 15)
+
+        self.assertEqual(self.p1.stack, 0)
+        self.assertEqual(self.p1.currentBet, 15)
+        self.assertEqual(self.game.pot, 25)
+
+
+    def test_raise_above_max_bet_is_invalid(self):
+        self.game.postBlinds()
+
+        with self.assertRaises(ValueError):
+            self.game.raiseTo(self.p1, 2000)
+
+
+    def test_raise_below_minimum_is_invalid(self):
+        self.game.postBlinds()
+
+        with self.assertRaises(ValueError):
+            self.game.raiseTo(self.p1, 15)
+
+
+    def test_valid_raise_updates_correctly(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+
+        self.assertEqual(self.p1.currentBet, 20)
+        self.assertEqual(self.p1.stack, 980)
+        self.assertEqual(self.game.pot, 30)
+
 if __name__ == "__main__":
     unittest.main()

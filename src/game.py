@@ -143,9 +143,11 @@ class Game:
             raise ValueError("Invalid call")
 
         amountToCall = self.getAmountToCall(player)
-        player.stack -= amountToCall
-        player.currentBet += amountToCall
-        self.pot += amountToCall
+        callAmount = min(amountToCall, player.stack)
+
+        player.stack -= callAmount
+        player.currentBet += callAmount
+        self.pot += callAmount
 
 
     def raiseTo(self, player, targetBet):
@@ -164,7 +166,7 @@ class Game:
 
     def canCall(self, player):
         amountToCall = self.getAmountToCall(player)
-        return amountToCall > 0 and player.stack >= amountToCall
+        return amountToCall > 0 and player.stack > 0
 
 
     def isValidRaise(self, player, targetBet):
@@ -209,7 +211,11 @@ class Game:
                 highestBet = player.currentBet
 
         for player in self.players:
-            if not player.folded and player.currentBet != highestBet:
+            if player.folded:
+                continue
+            if player.stack == 0:
+                continue
+            if player.currentBet != highestBet:
                 return False
 
         return True

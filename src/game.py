@@ -77,18 +77,31 @@ class Game:
 
 
     def bettingRound(self):
-        for player in self.players:
-            action = self.getPlayerAction(player)
-            if action == "fold":
-                self.fold(player)
-                print(player.name, "folds")
-            elif action == "check":
-                self.check(player)
-                print(player.name, "checks")
-            elif action == "call":
-                amountToCall = self.getAmountToCall(player)
-                self.call(player)
-                print(player.name, "calls", amountToCall)
+        while True:
+            for player in self.players:
+                if player.folded:
+                    continue
+
+                if self.countActivePlayers() == 1:
+                    return
+                
+                action = self.getPlayerAction(player)
+
+                if action == "fold":
+                    self.fold(player)
+                    print(player.name, "folds")
+
+                elif action == "check":
+                    self.check(player)
+                    print(player.name, "checks")
+                    
+                elif action == "call":
+                    amountToCall = self.getAmountToCall(player)
+                    self.call(player)
+                    print(player.name, "calls", amountToCall)
+
+            if self.isBettingRoundComplete():
+                return
 
 
     def getPlayerAction(self, player):
@@ -131,6 +144,20 @@ class Game:
                 highestBet = otherPlayer.currentBet
 
         return highestBet - player.currentBet
+
+
+    def isBettingRoundComplete(self):
+        highestBet = 0
+
+        for player in self.players:
+            if not player.folded and player.currentBet > highestBet:
+                highestBet = player.currentBet
+
+        for player in self.players:
+            if not player.folded and player.currentBet != highestBet:
+                return False
+
+        return True
 
 
     def resetCurrentBets(self):

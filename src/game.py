@@ -155,9 +155,11 @@ class Game:
             raise ValueError("Invalid raise amount")
 
         additionalAmount = targetBet - player.currentBet
-        player.stack -= additionalAmount
-        player.currentBet = targetBet
-        self.pot += additionalAmount
+        raiseAmount = min(additionalAmount, player.stack)
+
+        player.stack -= raiseAmount
+        player.currentBet += raiseAmount
+        self.pot += raiseAmount
 
 
     def canCheck(self, player):
@@ -172,18 +174,21 @@ class Game:
     def isValidRaise(self, player, targetBet):
         highestBet = self.getHighestBet()
 
-        # must raise above current highest bet
+        if player.stack <= 0:
+            return False
+
         if targetBet <= highestBet:
             return False
 
-        # simple minimum raise rule (double the current bet)
-        minRaiseTo = highestBet * 2 if highestBet > 0 else 10
-        if targetBet < minRaiseTo:
+        maxBet = player.currentBet + player.stack
+        if targetBet > maxBet:
             return False
 
-        # must have enough chips
-        additionalAmount = targetBet - player.currentBet
-        if additionalAmount > player.stack:
+        if targetBet == maxBet:
+            return True
+
+        minRaiseTo = highestBet * 2 if highestBet > 0 else 10
+        if targetBet < minRaiseTo:
             return False
 
         return True

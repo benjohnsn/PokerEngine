@@ -112,7 +112,7 @@ class Game:
     def getPlayerAction(self, player):
         amountToCall = self.getAmountToCall(player)
 
-        if amountToCall == 0:
+        if self.canCheck(player):
             validActions = ["check", "fold"]
             prompt = f"{player.name} - check or fold: "
         else:
@@ -142,21 +142,56 @@ class Game:
 
 
     def raiseTo(self, player, targetBet):
-        additionalAmount = targetBet - player.currentBet
+        if not self.isValidRaise(player, targetBet):
+            raise ValueError("Invalid raise amount")
 
+        additionalAmount = targetBet - player.currentBet
         player.stack -= additionalAmount
         player.currentBet = targetBet
         self.pot += additionalAmount
 
 
+    def canCheck(self, player):
+        return self.getAmountToCall(player) == 0
+
+
+    def canCall(self, player):
+        amountToCall = self.getAmountToCall(player)
+        return amountToCall > 0 and player.stack >= amountToCall
+
+
+    def isValidRaise(self, player, targetBet):
+        highestBet = self.getHighestBet()
+
+        # must raise above current highest bet
+        if targetBet <= highestBet:
+            return False
+
+        # simple minimum raise rule (double the current bet)
+        minRaiseTo = highestBet * 2 if highestBet > 0 else 10
+        if targetBet < minRaiseTo:
+            return False
+
+        # must have enough chips
+        additionalAmount = targetBet - player.currentBet
+        if additionalAmount > player.stack:
+            return False
+
+        return True
+
+
     def getAmountToCall(self, player):
-        highestBet = 0
-
-        for otherPlayer in self.players:
-            if otherPlayer.currentBet > highestBet:
-                highestBet = otherPlayer.currentBet
-
+        highestBet = self.getHighestBet()
         return highestBet - player.currentBet
+
+
+    def getHighestBet(self):
+        highestBet = 0
+        for player in self.players:
+            if player.currentBet > highestBet:
+                highestBet = player.currentBet
+
+        return highestBet
 
 
     def isBettingRoundComplete(self):

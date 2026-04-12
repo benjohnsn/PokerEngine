@@ -91,6 +91,57 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.p2.stack, 997)
         self.assertEqual(self.game.pot, 0)
 
+    def test_get_highest_bet(self):
+        self.game.postBlinds()
+        self.assertEqual(self.game.getHighestBet(), 10)
+
+    def test_can_check_when_no_bet_to_call(self):
+        self.assertTrue(self.game.canCheck(self.p1))
+
+    def test_cannot_check_when_facing_bet(self):
+        self.game.postBlinds()
+        self.assertFalse(self.game.canCheck(self.p1))
+
+    def test_can_call_when_player_has_enough_chips(self):
+        self.game.postBlinds()
+        self.assertTrue(self.game.canCall(self.p1))
+
+    def test_cannot_call_when_player_lacks_chips(self):
+        self.game.postBlinds()
+        self.p1.stack = 3
+        self.assertFalse(self.game.canCall(self.p1))
+
+    def test_is_valid_raise(self):
+        self.game.postBlinds()
+        self.assertTrue(self.game.isValidRaise(self.p1, 20))
+
+    def test_raise_to_same_as_highest_bet_is_invalid(self):
+        self.game.postBlinds()
+        self.assertFalse(self.game.isValidRaise(self.p1, 10))
+
+    def test_raise_below_minimum_is_invalid(self):
+        self.game.postBlinds()
+        self.assertFalse(self.game.isValidRaise(self.p1, 15))
+
+    def test_raise_above_stack_is_invalid(self):
+        self.game.postBlinds()
+        self.p1.stack = 8
+        self.assertFalse(self.game.isValidRaise(self.p1, 20))
+
+    def test_raise_to_updates_stack_bet_and_pot(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+
+        self.assertEqual(self.p1.stack, 980)
+        self.assertEqual(self.p1.currentBet, 20)
+        self.assertEqual(self.game.pot, 30)
+
+    def test_invalid_raise_raises_value_error(self):
+        self.game.postBlinds()
+
+        with self.assertRaises(ValueError):
+            self.game.raiseTo(self.p1, 15)
 
 if __name__ == "__main__":
     unittest.main()

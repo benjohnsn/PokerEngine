@@ -213,5 +213,49 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.p1.stack, 980)
         self.assertEqual(self.game.pot, 30)
 
+    def test_raise_sets_last_raiser(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+
+        self.assertEqual(self.game.lastRaiser, self.p1)
+
+
+    def test_raise_does_not_complete_round_immediately(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+
+        self.assertFalse(self.game.isBettingRoundComplete())
+
+
+    def test_call_after_raise_completes_round(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+        self.game.call(self.p2)
+
+        self.assertTrue(self.game.isBettingRoundComplete())
+
+
+    def test_multiple_raises_reset_action_cycle(self):
+        self.game.postBlinds()
+
+        self.game.raiseTo(self.p1, 20)
+        self.game.raiseTo(self.p2, 40)
+
+        self.assertEqual(self.game.lastRaiser, self.p2)
+        self.assertFalse(self.game.isBettingRoundComplete())
+
+
+    def test_all_in_does_not_block_round_completion(self):
+        self.game.postBlinds()
+
+        self.p2.stack = 5
+        self.game.raiseTo(self.p1, 20)
+        self.game.call(self.p2)  # all-in
+
+        self.assertTrue(self.game.isBettingRoundComplete())
+
 if __name__ == "__main__":
     unittest.main()

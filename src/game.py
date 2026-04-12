@@ -78,15 +78,34 @@ class Game:
 
     def bettingRound(self):
         for player in self.players:
-            if player.folded:
-                continue
-            amountToCall = self.getAmountToCall(player)
-            if amountToCall == 0:
+            action = self.getPlayerAction(player)
+            if action == "fold":
+                self.fold(player)
+                print(player.name, "folds")
+            elif action == "check":
                 self.check(player)
                 print(player.name, "checks")
-            else:
+            elif action == "call":
+                amountToCall = self.getAmountToCall(player)
                 self.call(player)
                 print(player.name, "calls", amountToCall)
+
+
+    def getPlayerAction(self, player):
+        amountToCall = self.getAmountToCall(player)
+
+        if amountToCall == 0:
+            validActions = ["check", "fold"]
+            prompt = f"{player.name} - check or fold: "
+        else:
+            validActions = ["call", "fold"]
+            prompt = f"{player.name} - call {amountToCall} or fold: "
+
+        while True:
+            action = input(prompt).strip().lower()
+            if action in validActions:
+                return action
+            print("Invalid action. Try again.")
 
 
     def call(self, player):

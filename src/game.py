@@ -115,9 +115,12 @@ class Game:
         if self.canCheck(player):
             validActions = ["check", "fold"]
             prompt = f"{player.name} - check or fold: "
-        else:
+        elif self.canCall(player):
             validActions = ["call", "raise", "fold"]
             prompt = f"{player.name} - call {amountToCall}, raise or fold: "
+        else:
+            validActions = ["fold"]
+            prompt = f"{player.name} - fold: "
 
         while True:
             action = input(prompt).strip().lower()
@@ -131,10 +134,14 @@ class Game:
 
 
     def check(self, player):
-        pass
+        if not self.canCheck(player):
+            raise ValueError("Invalid check")
 
 
     def call(self, player):
+        if not self.canCall(player):
+            raise ValueError("Invalid call")
+
         amountToCall = self.getAmountToCall(player)
         player.stack -= amountToCall
         player.currentBet += amountToCall

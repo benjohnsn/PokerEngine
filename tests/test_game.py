@@ -143,5 +143,18 @@ class TestGame(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.game.raiseTo(self.p1, 15)
 
+    def test_invalid_check_raises_value_error(self):
+        self.game.postBlinds()
+
+        with self.assertRaises(ValueError):
+            self.game.check(self.p1)
+
+    def test_invalid_call_raises_value_error(self):
+        self.game.postBlinds()
+        self.p1.stack = 3
+
+        with self.assertRaises(ValueError):
+            self.game.call(self.p1)
+
 if __name__ == "__main__":
     unittest.main()

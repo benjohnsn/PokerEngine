@@ -94,7 +94,11 @@ class Game:
                 action = self.getPlayerAction(player)
                 playersActed.add(player)
 
-                self.handleAction(player, action)
+                targetbet = None
+                if action == "raise":
+                    targetBet = int(input("Enter total bet amount: "))
+
+                self.handleAction(player, action, targetbet)
 
                 if action == "raise":
                     playersActed = {player}
@@ -161,7 +165,7 @@ class Game:
         self.lastRaiser = player
 
 
-    def handleAction(self, player, action):
+    def handleAction(self, player, action, targetBet=None):
         if action == "fold":
             self.fold(player)
             print(player.name, "folds")
@@ -176,7 +180,9 @@ class Game:
             print(player.name, "calls", amountToCall)
 
         elif action == "raise":
-            targetBet = int(input("Enter total bet amount: "))
+            if targetBet is None:
+                raise ValueError("Raise amount required")
+
             self.raiseTo(player, targetBet)
             print(player.name, "raises to", targetBet)
 

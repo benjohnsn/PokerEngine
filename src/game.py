@@ -94,24 +94,10 @@ class Game:
                 action = self.getPlayerAction(player)
                 playersActed.add(player)
 
-                if action == "fold":
-                    self.fold(player)
-                    print(player.name, "folds")
+                self.handleAction(player, action)
 
-                elif action == "check":
-                    self.check(player)
-                    print(player.name, "checks")
-
-                elif action == "call":
-                    amountToCall = self.getAmountToCall(player)
-                    self.call(player)
-                    print(player.name, "calls", amountToCall)
-
-                elif action == "raise":
-                    targetBet = int(input("Enter total bet amount: "))
-                    self.raiseTo(player, targetBet)
+                if action == "raise":
                     playersActed = {player}
-                    print(player.name, "raises to", targetBet)
 
                 if self.lastRaiser and player == self.lastRaiser and len(playersActed) > 1:
                     return
@@ -173,6 +159,26 @@ class Game:
         self.pot += raiseAmount
 
         self.lastRaiser = player
+
+
+    def handleAction(self, player, action):
+        if action == "fold":
+            self.fold(player)
+            print(player.name, "folds")
+
+        elif action == "check":
+            self.check(player)
+            print(player.name, "checks")
+
+        elif action == "call":
+            amountToCall = self.getAmountToCall(player)
+            self.call(player)
+            print(player.name, "calls", amountToCall)
+
+        elif action == "raise":
+            targetBet = int(input("Enter total bet amount: "))
+            self.raiseTo(player, targetBet)
+            print(player.name, "raises to", targetBet)
 
 
     def canCheck(self, player):

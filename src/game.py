@@ -4,13 +4,14 @@ from .evaluator import Evaluator
 
 class Game:
     def __init__(self):
-        self.players = [Player("Hero"), Player("Villain")]
+        self.players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4"), Player("Player 5"), Player("Player 6")]
         self.deck = Deck()
         self.evaluator = Evaluator()
 
         self.board = []
         self.pot = 0
         self.lastRaiser = None
+        self.dealerIndex = 0
 
 
     def run(self):
@@ -63,20 +64,47 @@ class Game:
             player.newHand()
 
 
+    def getSmallBlindIndex(self):
+        return (self.dealerIndex + 1) % len(self.players)
+
+
+    def getBigBlindIndex(self):
+        return (self.dealerIndex + 2) % len(self.players)
+
+
+    def getUnderTheGunIndex(self):
+        return (self.dealerIndex + 3) % len(self.players)
+
+
+    def rotateDealer(self):
+        self.dealerIndex = (self.dealerIndex + 1) % len(self.players)
+
+
+    def getPlayersInOrder(self, startIndex):
+        orderedPlayers = []
+        for i in range(len(self.players)):
+            index = (startIndex + i) % len(self.players)
+            orderedPlayers.append(self.players[index])
+        return orderedPlayers
+
+
     def postBlinds(self):
         smallBlind = 5
         bigBlind = 10
 
-        sbPlayer = self.players[0]
-        bbPlayer = self.players[1]
+        sbPlayer = self.players[self.getSmallBlindIndex()]
+        bbPlayer = self.players[self.getBigBlindIndex()]
 
-        sbPlayer.stack -= smallBlind
-        sbPlayer.currentBet = smallBlind
+        sbPosted = min(smallBlind, sbPlayer.stack)
+        bbPosted = min(bigBlind, bbPlayer.stack)
 
-        bbPlayer.stack -= bigBlind
-        bbPlayer.currentBet = bigBlind
+        sbPlayer.stack -= sbPosted
+        sbPlayer.currentBet = sbPosted
 
-        self.pot += smallBlind + bigBlind
+        bbPlayer.stack -= bbPosted
+        bbPlayer.currentBet = bbPosted
+
+        self.pot += sbPosted + bbPosted
 
 
     def bettingRound(self):

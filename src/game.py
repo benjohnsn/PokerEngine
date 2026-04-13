@@ -20,7 +20,7 @@ class Game:
         self.postBlinds()
 
         self.dealHands()
-        self.bettingRound()
+        self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             return
@@ -107,12 +107,17 @@ class Game:
         self.pot += sbPosted + bbPosted
 
 
-    def bettingRound(self):
+    def bettingRound(self, preflop=False):
         self.lastRaiser = None
         playersActed = set()
 
+        if preflop:
+            actingOrder = self.getPlayersInOrder(self.getUnderTheGunIndex())
+        else:
+            actingOrder = self.getPlayersInOrder((self.dealerIndex + 1) % len(self.players))
+
         while True:
-            for player in self.players:
+            for player in actingOrder:
                 if player.folded:
                     continue
 
@@ -325,22 +330,37 @@ class Game:
     def handFoldWin(self):
         winner = self.getRemainingPlayer()
         self.awardPot([winner])
-        print(winner.name, "wins (opponent folded)")
+        print(winner.name, "wins by everyone folding")
 
 
     def showdown(self):
-        p1Score = self.evaluator.evaluateHand(self.players[0].hand + self.board)
-        p2Score = self.evaluator.evaluateHand(self.players[1].hand + self.board)
+        activePlayers = []
+        bestScore = None
 
-        if p1Score > p2Score:
-            self.awardPot([self.players[0]])
-            print(self.players[0], "wins with", self.evaluator.formatHand(p1Score))
-        elif p2Score > p1Score:
-            self.awardPot([self.players[1]])
-            print(self.players[1], "wins with", self.evaluator.formatHand(p2Score))
+        for player in self.players:
+            if player.folded:
+                continue
+
+            score = self.evaluator.evaluateHand(player.hand + self.board)
+            activePlayers.append((player, score))
+
+            if bestScore is None or score > bestScore:
+                bestScore = score
+
+        winners = []
+        for player, score in activePlayers:
+            if score == bestScore:
+                winners.append(player)
+
+        self.awardPot(winners)
+
+        if len(winners) == 1:
+            print(winners[0].name, "wins with", self.evaluator.formatHand(bestScore))
         else:
-            self.awardPot(self.players)
-            print("Tie!", self.evaluator.formatHand(p1Score))
+            winnerNames = []
+            for player in winners:
+                winnerNames.append(player.name)
+            print("Tie between", ", ".join(winnerNames), "with", self.evaluator.formatHand(bestScore))
 
 
     def awardPot(self, winners):

@@ -1,11 +1,13 @@
 from .player import Player
 from .deck import Deck
+from .betting import BettingManager
 from .evaluator import Evaluator
 
 class Game:
     def __init__(self):
         self.players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4"), Player("Player 5"), Player("Player 6")]
         self.deck = Deck()
+        self.bettingManager = BettingManager(self)
         self.evaluator = Evaluator()
 
         self.board = []
@@ -134,210 +136,63 @@ class Game:
 
 
     def bettingRound(self, preflop=False):
-        self.lastRaiser = None
-        playersActed = set()
-
-        if preflop:
-            actingOrder = self.getPlayersInOrder(self.getUnderTheGunIndex())
-        else:
-            actingOrder = self.getPlayersInOrder((self.dealerIndex + 1) % len(self.getLivePlayers()))
-
-        while True:
-            for player in actingOrder:
-                if player.folded:
-                    continue
-
-                if self.countActivePlayers() == 1:
-                    return
-                
-                action = self.getPlayerAction(player)
-                playersActed.add(player)
-
-                targetBet = None
-                if action == "raise":
-                    targetBet = int(input("Enter total bet amount: "))
-
-                self.applyAction(player, action, targetBet)
-
-                if action == "raise":
-                    playersActed = {player}
-
-                if self.lastRaiser and player == self.lastRaiser and len(playersActed) > 1:
-                    return
-            
-            if self.lastRaiser is None and self.isBettingRoundComplete():
-                return
+        self.bettingManager.bettingRound(preflop)
 
 
     def getPlayerAction(self, player):
-        validActions = self.getValidActions(player)
-        amountToCall = self.getAmountToCall(player)
-
-        if validActions == ["fold"]:
-            prompt = f"{player.name} - fold: "
-        elif validActions == ["check", "raise", "fold"]:
-            prompt = f"{player.name} - check, raise or fold: "
-        elif validActions == ["check", "fold"]:
-            prompt = f"{player.name} - check or fold: "
-        elif validActions == ["call", "raise", "fold"]:
-            prompt = f"{player.name} - call {amountToCall}, raise or fold: "
-        elif validActions == ["call", "fold"]:
-            prompt = f"{player.name} - call {amountToCall} or fold: "
-        else:
-            raise ValueError("Unexpected valid actions")
-
-        while True:
-            action = input(prompt).strip().lower()
-            if action in validActions:
-                return action
-            print("Invalid action. Try again.")
+        return self.bettingManager.getPlayerAction(player)
 
 
     def fold(self, player):
-        player.folded = True
+        self.bettingManager.fold(player)
 
 
     def check(self, player):
-        if not self.canCheck(player):
-            raise ValueError("Invalid check")
+        self.bettingManager.check(player)
 
 
     def call(self, player):
-        if not self.canCall(player):
-            raise ValueError("Invalid call")
-
-        amountToCall = self.getAmountToCall(player)
-        callAmount = min(amountToCall, player.stack)
-
-        player.stack -= callAmount
-        player.currentBet += callAmount
-        self.pot += callAmount
+        self.bettingManager.call(player)
 
 
     def raiseTo(self, player, targetBet):
-        if not self.isValidRaise(player, targetBet):
-            raise ValueError("Invalid raise amount")
-
-        additionalAmount = targetBet - player.currentBet
-        raiseAmount = min(additionalAmount, player.stack)
-
-        player.stack -= raiseAmount
-        player.currentBet += raiseAmount
-        self.pot += raiseAmount
-
-        self.lastRaiser = player
+        self.bettingManager.raiseTo(player, targetBet)
 
 
     def applyAction(self, player, action, targetBet=None):
-        if action == "fold":
-            self.fold(player)
-
-        elif action == "check":
-            self.check(player)
-
-        elif action == "call":
-            self.call(player)
-
-        elif action == "raise":
-            if targetBet is None:
-                raise ValueError("Raise amount required")
-
-            self.raiseTo(player, targetBet)
-
-        else:
-            raise ValueError("Invalid action")
+        self.bettingManager.applyAction(player, action, targetBet)
 
 
     def getValidActions(self, player):
-        validActions = []
-
-        if player.folded:
-            return validActions
-
-        if self.canCheck(player):
-            validActions.append("check")
-        elif self.canCall(player):
-            validActions.append("call")
-
-        if self.isRaiseAvailable(player):
-            validActions.append("raise")
-
-        validActions.append("fold")
-        return validActions
+        return self.bettingManager.getValidActions(player)
 
 
     def canCheck(self, player):
-        return self.getAmountToCall(player) == 0
+        return self.bettingManager.canCheck(player)
 
 
     def canCall(self, player):
-        amountToCall = self.getAmountToCall(player)
-        return amountToCall > 0 and player.stack > 0
+        return self.bettingManager.canCall(player)
 
 
     def isRaiseAvailable(self, player):
-        return player.stack > self.getAmountToCall(player)
+        return self.bettingManager.isRaiseAvailable(player)
 
 
     def isValidRaise(self, player, targetBet):
-        highestBet = self.getHighestBet()
-
-        if player.stack <= 0:
-            return False
-
-        if targetBet <= highestBet:
-            return False
-
-        maxBet = player.currentBet + player.stack
-        if targetBet > maxBet:
-            return False
-
-        if targetBet == maxBet:
-            return True
-
-        minRaiseTo = highestBet * 2 if highestBet > 0 else 10
-        if targetBet < minRaiseTo:
-            return False
-
-        return True
+        return self.bettingManager.isValidRaise(player, targetBet)
 
 
     def getAmountToCall(self, player):
-        highestBet = self.getHighestBet()
-        return highestBet - player.currentBet
+        return self.bettingManager.getAmountToCall(player)
 
 
     def getHighestBet(self):
-        highestBet = 0
-        for player in self.players:
-            if player.currentBet > highestBet:
-                highestBet = player.currentBet
-
-        return highestBet
+        return self.bettingManager.getHighestBet()
 
 
     def isBettingRoundComplete(self):
-        highestBet = 0
-
-        for player in self.players:
-            if player.folded:
-                continue
-            if len(player.hand) == 0:
-                continue
-            if player.currentBet > highestBet:
-                highestBet = player.currentBet
-
-        for player in self.players:
-            if player.folded:
-                continue
-            if len(player.hand) == 0:
-                continue
-            if player.stack == 0:
-                continue
-            if player.currentBet != highestBet:
-                return False
-
-        return True
+        return self.bettingManager.isBettingRoundComplete()
 
 
     def resetCurrentBets(self):

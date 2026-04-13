@@ -44,6 +44,9 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             return
+        if self.shouldRunoutBoard():
+            self.runoutBoard()
+            return
         self.resetCurrentBets()
 
         self.burn()
@@ -52,6 +55,9 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             return
+        if self.shouldRunoutBoard():
+            self.runoutBoard()
+            return
         self.resetCurrentBets()
 
         self.burn()
@@ -59,6 +65,9 @@ class Game:
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
+            return
+        if self.shouldRunoutBoard():
+            self.runoutBoard()
             return
         self.resetCurrentBets()
 
@@ -121,6 +130,28 @@ class Game:
             if player.stack > 0:
                 livePlayers.append(player)
         return livePlayers
+
+
+    def getActivePlayers(self):
+        active = []
+        for player in self.players:
+            if player.folded:
+                continue
+            if len(player.hand) == 0:
+                continue
+            active.append(player)
+        return active
+
+
+    def shouldRunoutBoard(self):
+        activePlayers = self.getActivePlayers()
+
+        playersWhoCanAct = 0
+        for player in activePlayers:
+            if player.stack > 0:
+                playersWhoCanAct += 1
+
+        return len(activePlayers) > 1 and playersWhoCanAct <= 1
 
 
     def postBlinds(self):
@@ -205,23 +236,12 @@ class Game:
 
 
     def countActivePlayers(self):
-        count = 0
-        for player in self.players:
-            if player.folded:
-                continue
-            if len(player.hand) == 0:
-                continue
-            count += 1
-        return count
+        return len(self.getActivePlayers())
 
 
     def getRemainingPlayer(self):
-        for player in self.players:
-            if player.folded:
-                continue
-            if len(player.hand) == 0:
-                continue
-            return player
+        activePlayers = self.getActivePlayers()
+        return activePlayers[0]
 
 
     def isGameOver(self):
@@ -312,6 +332,21 @@ class Game:
 
     def dealRiver(self):
         self.board.append(self.deck.deal())
+
+
+    def runoutBoard(self):
+        while len(self.board) < 5:
+            self.burn()
+
+            if len(self.board) == 0:
+                self.dealFlop()
+            elif len(self.board) == 3:
+                self.dealTurn()
+            elif len(self.board) == 4:
+                self.dealRiver()
+
+        self.showState()
+        self.showdown()
 
 
     def showState(self):

@@ -158,7 +158,6 @@ class TestGame(unittest.TestCase):
     def test_runout_board_deals_remaining_cards_and_resolves_pot(self):
         self.game.newHand()
         self.game.dealHands()
-        self.game.pot = 100
 
         activePlayers = self.game.getActivePlayers()
         p1 = activePlayers[0]
@@ -170,9 +169,13 @@ class TestGame(unittest.TestCase):
         p1.stack = 0
         p2.stack = 100
 
-        self.game.dealFlop()
+        p1.contribution = 50
+        p2.contribution = 50
+        self.game.pot = 100
 
+        self.game.dealFlop()
         self.assertEqual(len(self.game.board), 3)
+
         self.assertTrue(self.game.shouldRunoutBoard())
 
         self.game.runoutBoard()

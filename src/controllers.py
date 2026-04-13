@@ -1,3 +1,4 @@
+import random
 class HumanController:
     def getAction(self, game, player, validActions, amountToCall):
         if validActions == ["fold"]:
@@ -25,6 +26,28 @@ class HumanController:
                 return action, targetBet
 
             return action, None
+
+class RandomController:
+    def getAction(self, game, player, validActions, amountToCall):
+        action = random.choice(validActions)
+
+        if action == "raise":
+            targetBets = []
+            minBet = player.currentBet + 1
+            maxBet = player.currentBet + player.stack
+
+            for targetBet in range(minBet, maxBet + 1):
+                if game.isValidRaise(player, targetBet):
+                    targetBets.append(targetBet)
+            
+            if not targetBets:
+                return "fold", None
+
+            targetBet = random.choice(targetBets)
+
+            return action, targetBet
+
+        return action, None
 
 class ScriptedController:
     def __init__(self, actions):

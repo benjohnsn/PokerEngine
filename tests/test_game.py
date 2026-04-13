@@ -103,6 +103,64 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.p2.stack, 1002)
         self.assertEqual(self.game.pot, 0)
 
+    def test_should_runout_board_when_only_one_player_can_act(self):
+        self.game.newHand()
+        self.game.dealHands()
+
+        activePlayers = self.game.getActivePlayers()
+        p1 = activePlayers[0]
+        p2 = activePlayers[1]
+
+        for player in activePlayers[2:]:
+            player.folded = True
+
+        p1.stack = 0
+        p2.stack = 100
+
+        self.assertTrue(self.game.shouldRunoutBoard())
+
+
+    def test_should_not_runout_board_when_two_players_can_act(self):
+        self.game.newHand()
+        self.game.dealHands()
+
+        activePlayers = self.game.getActivePlayers()
+        p1 = activePlayers[0]
+        p2 = activePlayers[1]
+
+        for player in activePlayers[2:]:
+            player.folded = True
+
+        p1.stack = 100
+        p2.stack = 100
+
+        self.assertFalse(self.game.shouldRunoutBoard())
+
+
+    def test_runout_board_deals_remaining_cards_and_resolves_pot(self):
+        self.game.newHand()
+        self.game.dealHands()
+        self.game.pot = 100
+
+        activePlayers = self.game.getActivePlayers()
+        p1 = activePlayers[0]
+        p2 = activePlayers[1]
+
+        for player in activePlayers[2:]:
+            player.folded = True
+
+        p1.stack = 0
+        p2.stack = 100
+
+        self.game.dealFlop()
+
+        self.assertEqual(len(self.game.board), 3)
+        self.assertTrue(self.game.shouldRunoutBoard())
+
+        self.game.runoutBoard()
+
+        self.assertEqual(len(self.game.board), 5)
+        self.assertEqual(self.game.pot, 0)
 
 if __name__ == "__main__":
     unittest.main()

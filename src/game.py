@@ -268,7 +268,7 @@ class Game:
 
 
     def showdown(self):
-        self.awardPot([])
+        self.awardPot()
 
         activePlayers = self.getActivePlayers()
         if not activePlayers:
@@ -295,7 +295,7 @@ class Game:
             print("Tie between", ", ".join(winnerNames), "with", self.evaluator.formatHand(bestScore))
 
 
-    def awardPot(self, _):
+    def awardPot(self):
         # Start with only players who have put chips into the pot this hand.
         remainingPlayers = []
         for player in self.players:

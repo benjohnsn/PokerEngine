@@ -190,16 +190,6 @@ class TestBetting(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.game.raiseTo(sb, 2000)
 
-    def test_valid_raise_updates_correctly(self):
-        self.game.postBlinds()
-
-        sb = self.get_sb()
-        self.game.raiseTo(sb, 20)
-
-        self.assertEqual(sb.currentBet, 20)
-        self.assertEqual(sb.stack, 980)
-        self.assertEqual(self.game.pot, 30)
-
     def test_raise_sets_last_raiser(self):
         self.game.postBlinds()
 

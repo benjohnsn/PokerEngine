@@ -15,6 +15,16 @@ class Game:
 
 
     def run(self):
+        while not self.isGameOver():
+            self.playHand()
+            self.rotateDealer()
+            self.showStacks()
+
+        winner = self.getGameWinner()
+        print(winner.name, "wins the game!")
+
+
+    def playHand(self):
         self.newHand()
         self.deck.shuffle()
         self.postBlinds()
@@ -64,36 +74,52 @@ class Game:
             player.newHand()
 
 
+    def getPlayersInOrder(self, startIndex):
+        livePlayers = self.getLivePlayers()
+        orderedPlayers = []
+
+        for i in range(len(livePlayers)):
+            index = (startIndex + i) % len(livePlayers)
+            orderedPlayers.append(livePlayers[index])
+
+        return orderedPlayers
+
+
     def getSmallBlindIndex(self):
-        return (self.dealerIndex + 1) % len(self.players)
+        livePlayers = self.getLivePlayers()
+        return (self.dealerIndex + 1) % len(livePlayers)
 
 
     def getBigBlindIndex(self):
-        return (self.dealerIndex + 2) % len(self.players)
+        livePlayers = self.getLivePlayers()
+        return (self.dealerIndex + 2) % len(livePlayers)
 
 
     def getUnderTheGunIndex(self):
-        return (self.dealerIndex + 3) % len(self.players)
+        livePlayers = self.getLivePlayers()
+        return (self.dealerIndex + 3) % len(livePlayers)
 
 
     def rotateDealer(self):
-        self.dealerIndex = (self.dealerIndex + 1) % len(self.players)
+        livePlayers = self.getLivePlayers()
+        self.dealerIndex = (self.dealerIndex + 1) % len(livePlayers)
 
 
-    def getPlayersInOrder(self, startIndex):
-        orderedPlayers = []
-        for i in range(len(self.players)):
-            index = (startIndex + i) % len(self.players)
-            orderedPlayers.append(self.players[index])
-        return orderedPlayers
+    def getLivePlayers(self):
+        livePlayers = []
+        for player in self.players:
+            if player.stack > 0:
+                livePlayers.append(player)
+        return livePlayers
 
 
     def postBlinds(self):
         smallBlind = 5
         bigBlind = 10
+        livePlayers = self.getLivePlayers()
 
-        sbPlayer = self.players[self.getSmallBlindIndex()]
-        bbPlayer = self.players[self.getBigBlindIndex()]
+        sbPlayer = livePlayers[self.getSmallBlindIndex()]
+        bbPlayer = livePlayers[self.getBigBlindIndex()]
 
         sbPosted = min(smallBlind, sbPlayer.stack)
         bbPosted = min(bigBlind, bbPlayer.stack)
@@ -114,7 +140,7 @@ class Game:
         if preflop:
             actingOrder = self.getPlayersInOrder(self.getUnderTheGunIndex())
         else:
-            actingOrder = self.getPlayersInOrder((self.dealerIndex + 1) % len(self.players))
+            actingOrder = self.getPlayersInOrder((self.dealerIndex + 1) % len(self.getLivePlayers()))
 
         while True:
             for player in actingOrder:
@@ -294,11 +320,17 @@ class Game:
         highestBet = 0
 
         for player in self.players:
-            if not player.folded and player.currentBet > highestBet:
+            if player.folded:
+                continue
+            if len(player.hand) == 0:
+                continue
+            if player.currentBet > highestBet:
                 highestBet = player.currentBet
 
         for player in self.players:
             if player.folded:
+                continue
+            if len(player.hand) == 0:
                 continue
             if player.stack == 0:
                 continue
@@ -316,15 +348,35 @@ class Game:
     def countActivePlayers(self):
         count = 0
         for player in self.players:
-            if not player.folded:
-                count += 1
+            if player.folded:
+                continue
+            if len(player.hand) == 0:
+                continue
+            count += 1
         return count
 
 
     def getRemainingPlayer(self):
         for player in self.players:
-            if not player.folded:
-                return player
+            if player.folded:
+                continue
+            if len(player.hand) == 0:
+                continue
+            return player
+
+
+    def isGameOver(self):
+        return len(self.getLivePlayers()) == 1
+
+
+    def getGameWinner(self):
+        livePlayers = self.getLivePlayers()
+        return livePlayers[0]
+
+
+    def showStacks(self):
+        for player in self.players:
+            print(player.name, "Stack:", player.stack)
 
 
     def handFoldWin(self):
@@ -339,6 +391,8 @@ class Game:
 
         for player in self.players:
             if player.folded:
+                continue
+            if len(player.hand) == 0:
                 continue
 
             score = self.evaluator.evaluateHand(player.hand + self.board)
@@ -378,8 +432,9 @@ class Game:
 
 
     def dealHands(self):
+        livePlayers = self.getLivePlayers()
         for _ in range(2):
-            for player in self.players:
+            for player in livePlayers:
                 player.hand.append(self.deck.deal())
 
 

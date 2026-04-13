@@ -268,27 +268,23 @@ class Game:
 
 
     def showdown(self):
-        activePlayers = []
+        self.awardPot([])
+
+        activePlayers = self.getActivePlayers()
+        if not activePlayers:
+            return
+
         bestScore = None
+        winners = []
 
-        for player in self.players:
-            if player.folded:
-                continue
-            if len(player.hand) == 0:
-                continue
-
+        for player in activePlayers:
             score = self.evaluator.evaluateHand(player.hand + self.board)
-            activePlayers.append((player, score))
 
             if bestScore is None or score > bestScore:
                 bestScore = score
-
-        winners = []
-        for player, score in activePlayers:
-            if score == bestScore:
+                winners = [player]
+            elif score == bestScore:
                 winners.append(player)
-
-        self.awardPot(winners)
 
         if len(winners) == 1:
             print(winners[0].name, "wins with", self.evaluator.formatHand(bestScore))

@@ -70,6 +70,7 @@ class BettingManager:
 
         player.stack -= callAmount
         player.currentBet += callAmount
+        player.contribution += callAmount
         self.game.pot += callAmount
 
 
@@ -82,6 +83,7 @@ class BettingManager:
 
         player.stack -= raiseAmount
         player.currentBet += raiseAmount
+        player.contribution += raiseAmount
         self.game.pot += raiseAmount
 
         self.game.lastRaiser = player

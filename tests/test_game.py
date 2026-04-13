@@ -65,42 +65,60 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.game.countActivePlayers(), 1)
 
     def test_hand_fold_win_awards_pot(self):
-        self.game.postBlinds()
-
         self.p1.hand = make_cards(["AS", "KD"])
         self.p2.hand = make_cards(["QH", "JC"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 50
+        self.p1.stack = 950
+        self.p2.stack = 950
+
         self.p2.folded = True
+        self.game.pot = 100
 
         self.game.handFoldWin()
 
-        self.assertEqual(self.p1.stack, 1015)
+        self.assertEqual(self.p1.stack, 1050)
         self.assertEqual(self.game.pot, 0)
 
-    def test_showdown_awards_pot(self):
-        self.game.postBlinds()
 
+    def test_showdown_awards_pot(self):
         self.p1.hand = make_cards(["AS", "AD"])
         self.p2.hand = make_cards(["KS", "KD"])
         self.game.board = make_cards(["2H", "3D", "4C", "5S", "9H"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 50
+        self.p1.stack = 950
+        self.p2.stack = 950
+
         self.fold_other_players([self.p1, self.p2])
+        self.game.pot = 100
 
         self.game.showdown()
 
-        self.assertEqual(self.p1.stack, 1015)
+        self.assertEqual(self.p1.stack, 1050)
+        self.assertEqual(self.p2.stack, 950)
         self.assertEqual(self.game.pot, 0)
 
-    def test_showdown_split_pot(self):
-        self.game.postBlinds()
 
+    def test_showdown_split_pot(self):
         self.p1.hand = make_cards(["AS", "KD"])
         self.p2.hand = make_cards(["AH", "KC"])
         self.game.board = make_cards(["2H", "3D", "4C", "5S", "9H"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 50
+        self.p1.stack = 950
+        self.p2.stack = 950
+
         self.fold_other_players([self.p1, self.p2])
+        self.game.pot = 100
 
         self.game.showdown()
 
-        self.assertEqual(self.p1.stack, 1008)
-        self.assertEqual(self.p2.stack, 1002)
+        self.assertEqual(self.p1.stack, 1000)
+        self.assertEqual(self.p2.stack, 1000)
         self.assertEqual(self.game.pot, 0)
 
     def test_should_runout_board_when_only_one_player_can_act(self):
@@ -160,6 +178,88 @@ class TestGame(unittest.TestCase):
         self.game.runoutBoard()
 
         self.assertEqual(len(self.game.board), 5)
+        self.assertEqual(self.game.pot, 0)
+
+    def test_side_pot_single_side_pot(self):
+        self.p1.hand = make_cards(["AS", "AH"])
+        self.p2.hand = make_cards(["KS", "KH"])
+        self.p3.hand = make_cards(["QS", "QH"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 100
+        self.p3.contribution = 100
+
+        self.p1.stack = 0
+        self.p2.stack = 0
+        self.p3.stack = 0
+
+        self.p4.folded = True
+        self.p5.folded = True
+        self.p6.folded = True
+
+        self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
+        self.game.pot = 250
+
+        self.game.awardPot([])
+
+        self.assertEqual(self.p1.stack, 150)
+        self.assertEqual(self.p2.stack, 100)
+        self.assertEqual(self.p3.stack, 0)
+        self.assertEqual(self.game.pot, 0)
+
+    def test_side_pot_folded_player_cannot_win_side_pot(self):
+        self.p1.hand = make_cards(["AS", "AH"])
+        self.p2.hand = make_cards(["KS", "KH"])
+        self.p3.hand = make_cards(["QS", "QH"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 100
+        self.p3.contribution = 100
+
+        self.p1.stack = 0
+        self.p2.stack = 0
+        self.p3.stack = 0
+
+        self.p3.folded = True
+        self.p4.folded = True
+        self.p5.folded = True
+        self.p6.folded = True
+
+        self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
+        self.game.pot = 250
+
+        self.game.awardPot([])
+
+        self.assertEqual(self.p1.stack, 150)
+        self.assertEqual(self.p2.stack, 100)
+        self.assertEqual(self.p3.stack, 0)
+        self.assertEqual(self.game.pot, 0)
+
+    def test_side_pot_tied_main_pot(self):
+        self.p1.hand = make_cards(["AS", "KD"])
+        self.p2.hand = make_cards(["AH", "KC"])
+        self.p3.hand = make_cards(["QS", "QH"])
+
+        self.p1.contribution = 50
+        self.p2.contribution = 50
+        self.p3.contribution = 100
+
+        self.p1.stack = 0
+        self.p2.stack = 0
+        self.p3.stack = 0
+
+        self.p4.folded = True
+        self.p5.folded = True
+        self.p6.folded = True
+
+        self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
+        self.game.pot = 200
+
+        self.game.awardPot([])
+
+        self.assertEqual(self.p1.stack, 75)
+        self.assertEqual(self.p2.stack, 75)
+        self.assertEqual(self.p3.stack, 50)
         self.assertEqual(self.game.pot, 0)
 
 if __name__ == "__main__":

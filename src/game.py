@@ -167,9 +167,11 @@ class Game:
 
         sbPlayer.stack -= sbPosted
         sbPlayer.currentBet = sbPosted
+        sbPlayer.contribution += sbPosted
 
         bbPlayer.stack -= bbPosted
         bbPlayer.currentBet = bbPosted
+        bbPlayer.contribution += bbPosted
 
         self.pot += sbPosted + bbPosted
 
@@ -260,7 +262,8 @@ class Game:
 
     def handFoldWin(self):
         winner = self.getRemainingPlayer()
-        self.awardPot([winner])
+        winner.stack += self.pot
+        self.pot = 0
         print(winner.name, "wins by everyone folding")
 
 
@@ -296,17 +299,66 @@ class Game:
             print("Tie between", ", ".join(winnerNames), "with", self.evaluator.formatHand(bestScore))
 
 
-    def awardPot(self, winners):
-        share = self.pot // len(winners)
-        remainder = self.pot % len(winners)
+    def awardPot(self, _):
+        # Start with only players who have put chips into the pot this hand.
+        remainingPlayers = []
+        for player in self.players:
+            if player.contribution > 0:
+                remainingPlayers.append(player)
 
-        for player in winners:
-            player.stack += share
+        # Keep creating pots until all contribution has been accounted for.
+        while remainingPlayers:
+            # Find the smallest remaining contribution.
+            # This defines the next "layer" of the pot.
+            smallestContribution = min(player.contribution for player in remainingPlayers)
 
-        # distribute remaining chips clockwise from left of the dealer (poker rule for uneven pot)
-        for i in range(remainder):
-            winners[i].stack += 1
+            # Everyone still in remainingPlayers contributes this layer.
+            potPlayers = remainingPlayers[:]
+            potSize = smallestContribution * len(potPlayers)
 
+            # Only players who have not folded can win this pot.
+            eligiblePlayers = []
+            for player in potPlayers:
+                if not player.folded:
+                    eligiblePlayers.append(player)
+
+            # Find the best hand among players eligible to win this pot.
+            bestScore = None
+            winners = []
+
+            for player in eligiblePlayers:
+                score = self.evaluator.evaluateHand(player.hand + self.board)
+
+                if bestScore is None or score > bestScore:
+                    bestScore = score
+                    winners = [player]
+                elif score == bestScore:
+                    winners.append(player)
+
+            # Split this pot equally among the winners.
+            share = potSize // len(winners)
+            remainder = potSize % len(winners)
+
+            for player in winners:
+                player.stack += share
+
+            # Give any leftover chips one by one to the first winners.
+            for i in range(remainder):
+                winners[i].stack += 1
+
+            # Remove this contribution layer from every player still being considered.
+            for player in remainingPlayers:
+                player.contribution -= smallestContribution
+
+            # Keep only players who still have contribution left for future side pots.
+            newRemainingPlayers = []
+            for player in remainingPlayers:
+                if player.contribution > 0:
+                    newRemainingPlayers.append(player)
+
+            remainingPlayers = newRemainingPlayers
+
+        # All pot layers have now been awarded.
         self.pot = 0
 
 

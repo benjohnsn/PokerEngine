@@ -2,10 +2,18 @@ from .player import Player
 from .deck import Deck
 from .betting import BettingManager
 from .evaluator import Evaluator
+from .controllers import HumanController
 
 class Game:
     def __init__(self):
-        self.players = [Player("Player 1"), Player("Player 2"), Player("Player 3"), Player("Player 4"), Player("Player 5"), Player("Player 6")]
+        self.players = [
+            Player("Player 1", controller=HumanController()),
+            Player("Player 2", controller=HumanController()),
+            Player("Player 3", controller=HumanController()),
+            Player("Player 4", controller=HumanController()),
+            Player("Player 5", controller=HumanController()),
+            Player("Player 6", controller=HumanController())
+        ]
         self.deck = Deck()
         self.bettingManager = BettingManager(self)
         self.evaluator = Evaluator()

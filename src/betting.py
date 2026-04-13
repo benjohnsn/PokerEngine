@@ -177,13 +177,9 @@ class BettingManager:
         playersActed = set()
 
         if preflop:
-            actingOrder = self.game.getPlayersInOrder(
-                self.game.getUnderTheGunIndex()
-            )
+            actingOrder = self.game.getPlayersInOrder(self.game.getUnderTheGunIndex())
         else:
-            actingOrder = self.game.getPlayersInOrder(
-                (self.game.dealerIndex + 1) % len(self.game.getLivePlayers())
-            )
+            actingOrder = self.game.getPlayersInOrder((self.game.dealerIndex + 1) % len(self.game.getLivePlayers()))
 
         while True:
             for player in actingOrder:
@@ -193,23 +189,18 @@ class BettingManager:
                 if self.game.countActivePlayers() == 1:
                     return
 
-                action = self.getPlayerAction(player)
-                playersActed.add(player)
+                validActions = self.getValidActions(player)
+                amountToCall = self.getAmountToCall(player)
 
-                targetBet = None
-                if action == "raise":
-                    targetBet = int(input("Enter total bet amount: "))
+                action, targetBet = player.controller.getAction(self.game, player, validActions, amountToCall)
+                playersActed.add(player)
 
                 self.applyAction(player, action, targetBet)
 
                 if action == "raise":
                     playersActed = {player}
 
-                if (
-                    self.game.lastRaiser
-                    and player == self.game.lastRaiser
-                    and len(playersActed) > 1
-                ):
+                if (self.game.lastRaiser and player == self.game.lastRaiser and len(playersActed) > 1):
                     return
 
             if self.game.lastRaiser is None and self.isBettingRoundComplete():

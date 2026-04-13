@@ -94,11 +94,11 @@ class Game:
                 action = self.getPlayerAction(player)
                 playersActed.add(player)
 
-                targetbet = None
+                targetBet = None
                 if action == "raise":
                     targetBet = int(input("Enter total bet amount: "))
 
-                self.handleAction(player, action, targetbet)
+                self.handleAction(player, action, targetBet)
 
                 if action == "raise":
                     playersActed = {player}
@@ -111,17 +111,21 @@ class Game:
 
 
     def getPlayerAction(self, player):
+        validActions = self.getValidActions(player)
         amountToCall = self.getAmountToCall(player)
 
-        if self.canCheck(player):
-            validActions = ["check", "fold"]
-            prompt = f"{player.name} - check or fold: "
-        elif self.canCall(player):
-            validActions = ["call", "raise", "fold"]
-            prompt = f"{player.name} - call {amountToCall}, raise or fold: "
-        else:
-            validActions = ["fold"]
+        if validActions == ["fold"]:
             prompt = f"{player.name} - fold: "
+        elif validActions == ["check", "raise", "fold"]:
+            prompt = f"{player.name} - check, raise or fold: "
+        elif validActions == ["check", "fold"]:
+            prompt = f"{player.name} - check or fold: "
+        elif validActions == ["call", "raise", "fold"]:
+            prompt = f"{player.name} - call {amountToCall}, raise or fold: "
+        elif validActions == ["call", "fold"]:
+            prompt = f"{player.name} - call {amountToCall} or fold: "
+        else:
+            raise ValueError("Unexpected valid actions")
 
         while True:
             action = input(prompt).strip().lower()
@@ -187,6 +191,24 @@ class Game:
             print(player.name, "raises to", targetBet)
 
 
+    def getValidActions(self, player):
+        validActions = []
+
+        if player.folded:
+            return validActions
+
+        if self.canCheck(player):
+            validActions.append("check")
+        elif self.canCall(player):
+            validActions.append("call")
+
+        if self.isRaiseAvailable(player):
+            validActions.append("raise")
+
+        validActions.append("fold")
+        return validActions
+
+
     def canCheck(self, player):
         return self.getAmountToCall(player) == 0
 
@@ -194,6 +216,10 @@ class Game:
     def canCall(self, player):
         amountToCall = self.getAmountToCall(player)
         return amountToCall > 0 and player.stack > 0
+
+
+    def isRaiseAvailable(self, player):
+        return player.stack > self.getAmountToCall(player)
 
 
     def isValidRaise(self, player, targetBet):

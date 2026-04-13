@@ -124,30 +124,6 @@ class BettingManager:
             raise ValueError("Invalid action")
 
 
-    def getPlayerAction(self, player):
-        validActions = self.getValidActions(player)
-        amountToCall = self.getAmountToCall(player)
-
-        if validActions == ["fold"]:
-            prompt = f"{player.name} - fold: "
-        elif validActions == ["check", "raise", "fold"]:
-            prompt = f"{player.name} - check, raise or fold: "
-        elif validActions == ["check", "fold"]:
-            prompt = f"{player.name} - check or fold: "
-        elif validActions == ["call", "raise", "fold"]:
-            prompt = f"{player.name} - call {amountToCall}, raise or fold: "
-        elif validActions == ["call", "fold"]:
-            prompt = f"{player.name} - call {amountToCall} or fold: "
-        else:
-            raise ValueError("Unexpected valid actions")
-
-        while True:
-            action = input(prompt).strip().lower()
-            if action in validActions:
-                return action
-            print("Invalid action. Try again.")
-
-
     def isBettingRoundComplete(self):
         highestBet = 0
 
@@ -189,6 +165,9 @@ class BettingManager:
                 if self.game.countActivePlayers() == 1:
                     return
 
+                if self.game.lastRaiser and player == self.game.lastRaiser and len(playersActed) > 1:
+                    return
+
                 validActions = self.getValidActions(player)
                 amountToCall = self.getAmountToCall(player)
 
@@ -199,9 +178,6 @@ class BettingManager:
 
                 if action == "raise":
                     playersActed = {player}
-
-                if (self.game.lastRaiser and player == self.game.lastRaiser and len(playersActed) > 1):
-                    return
 
             if self.game.lastRaiser is None and self.isBettingRoundComplete():
                 return

@@ -147,10 +147,6 @@ class Game:
         self.bettingManager.bettingRound(preflop)
 
 
-    def getPlayerAction(self, player):
-        return self.bettingManager.getPlayerAction(player)
-
-
     def fold(self, player):
         self.bettingManager.fold(player)
 

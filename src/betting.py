@@ -110,20 +110,28 @@ class BettingManager:
     def applyAction(self, player, action, targetBet=None):
         if action == "fold":
             self.fold(player)
+            print(player.name, "folds")
 
         elif action == "check":
             self.check(player)
+            print(player.name, "checks")
 
         elif action == "call":
+            amountToCall = self.getAmountToCall(player)
+            callAmount = min(amountToCall, player.stack)
             self.call(player)
+            print(player.name, "calls", callAmount)
 
         elif action == "raise":
             if targetBet is None:
                 raise ValueError("Raise amount required")
             self.raiseTo(player, targetBet)
+            print(player.name, "raises to", targetBet)
 
         else:
             raise ValueError("Invalid action")
+
+        print("Pot:", self.game.pot)
 
 
     def isBettingRoundComplete(self):

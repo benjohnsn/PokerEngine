@@ -3,6 +3,7 @@ from .deck import Deck
 from .betting import BettingManager
 from .evaluator import Evaluator
 from .controllers import HumanController, RandomController
+import time
 
 class Game:
     def __init__(self):
@@ -23,6 +24,7 @@ class Game:
 
     def run(self):
         while not self.isGameOver():
+            time.sleep(2)
             self.playHand()
             self.rotateDealer()
             self.showStacks()
@@ -32,11 +34,16 @@ class Game:
 
 
     def playHand(self):
+        print("\n--- New Hand ---")
+        self.showStacks()
+
         self.newHand()
         self.deck.shuffle()
         self.postBlinds()
 
         self.dealHands()
+        print("\n--- Preflop ---")
+        self.showState()
         self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -48,6 +55,8 @@ class Game:
 
         self.burn()
         self.dealFlop()
+        print("\n--- Flop ---")
+        self.showState()
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -59,6 +68,8 @@ class Game:
 
         self.burn()
         self.dealTurn()
+        print("\n--- Turn ---")
+        self.showState()
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -70,12 +81,15 @@ class Game:
 
         self.burn()
         self.dealRiver()
+        print("\n--- River ---")
+        self.showState()
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             return
         self.resetCurrentBets()
 
+        print("\n--- Showdown ---")
         self.showState()
         self.showdown()
 
@@ -172,6 +186,10 @@ class Game:
 
         self.pot += sbPosted + bbPosted
 
+        print(sbPlayer.name, "posts small blind", sbPosted)
+        print(bbPlayer.name, "posts big blind", bbPosted)
+        print("Pot:", self.pot)
+
 
     def bettingRound(self, preflop=False):
         self.bettingManager.bettingRound(preflop)
@@ -265,6 +283,12 @@ class Game:
 
 
     def showdown(self):
+        activePlayers = self.getActivePlayers()
+
+        for player in activePlayers:
+            score = self.evaluator.evaluateHand(player.hand + self.board)
+            print(player.name, player.hand, "->", self.evaluator.formatHand(score))
+
         self.awardPot()
 
         activePlayers = self.getActivePlayers()
@@ -390,12 +414,19 @@ class Game:
             elif len(self.board) == 4:
                 self.dealRiver()
 
+        print("\n--- Runout ---")
         self.showState()
         self.showdown()
 
 
     def showState(self):
         for player in self.players:
-            print(player.name, player.hand, "Stack:", player.stack, "Bet:", player.currentBet)
+            if isinstance(player.controller, HumanController):
+                handDisplay = player.hand
+            else:
+                handDisplay = ["??", "??"]
+
+            print(player.name, handDisplay, "Stack:", player.stack, "Bet:", player.currentBet)
+
         print("Board:", self.board)
         print("Pot:", self.pot)

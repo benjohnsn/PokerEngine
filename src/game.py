@@ -11,6 +11,9 @@ class Game:
             Player("Player 1", controller=HumanController()),
             Player("Player 2", controller=RandomController()),
             Player("Player 3", controller=RandomController()),
+            Player("Player 4", controller=RandomController()),
+            Player("Player 5", controller=RandomController()),
+            Player("Player 6", controller=RandomController())
         ]
         self.deck = Deck()
         self.bettingManager = BettingManager(self)

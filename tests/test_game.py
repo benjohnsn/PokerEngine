@@ -203,7 +203,7 @@ class TestGame(unittest.TestCase):
         self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
         self.game.pot = 250
 
-        self.game.awardPot([])
+        self.game.awardPot()
 
         self.assertEqual(self.p1.stack, 150)
         self.assertEqual(self.p2.stack, 100)
@@ -231,7 +231,7 @@ class TestGame(unittest.TestCase):
         self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
         self.game.pot = 250
 
-        self.game.awardPot([])
+        self.game.awardPot()
 
         self.assertEqual(self.p1.stack, 150)
         self.assertEqual(self.p2.stack, 100)
@@ -258,7 +258,7 @@ class TestGame(unittest.TestCase):
         self.game.board = make_cards(["2C", "3D", "4H", "5S", "9C"])
         self.game.pot = 200
 
-        self.game.awardPot([])
+        self.game.awardPot()
 
         self.assertEqual(self.p1.stack, 75)
         self.assertEqual(self.p2.stack, 75)

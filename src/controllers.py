@@ -2,6 +2,7 @@ import random
 import time
 class HumanController:
     def getAction(self, game, player, validActions, amountToCall):
+
         if validActions == ["fold"]:
             prompt = f"{player.name} - fold: "
         elif validActions == ["check", "raise", "fold"]:
@@ -30,8 +31,8 @@ class HumanController:
 
 class RandomController:
     def getAction(self, game, player, validActions, amountToCall):
-        time.sleep(random.uniform(0.1, 5))
 
+        time.sleep(random.uniform(0.1, 5))
         action = random.choice(validActions)
 
         if action == "raise":

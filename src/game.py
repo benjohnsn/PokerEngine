@@ -1,19 +1,20 @@
+import time
+
 from .player import Player
 from .deck import Deck
 from .betting import BettingManager
 from .evaluator import Evaluator
-from .controllers import HumanController, RandomController
-import time
+from .controllers import HumanController, RandomController, TightAggressiveController
 
 class Game:
     def __init__(self):
         self.players = [
-            Player("Player 1", controller=HumanController()),
-            Player("Player 2", controller=RandomController()),
-            Player("Player 3", controller=RandomController()),
-            Player("Player 4", controller=RandomController()),
-            Player("Player 5", controller=RandomController()),
-            Player("Player 6", controller=RandomController())
+            Player("Player 1", controller=TightAggressiveController()),
+            Player("Player 2", controller=TightAggressiveController()),
+            Player("Player 3", controller=TightAggressiveController()),
+            Player("Player 4", controller=TightAggressiveController()),
+            Player("Player 5", controller=TightAggressiveController()),
+            Player("Player 6", controller=TightAggressiveController())
         ]
         self.deck = Deck()
         self.bettingManager = BettingManager(self)

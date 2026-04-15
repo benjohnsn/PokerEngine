@@ -1,6 +1,6 @@
 import unittest
-from src.game import Game
-from src.card import Card
+from engine.src.game import Game
+from engine.src.card import Card
 
 
 def make_cards(card_strs):

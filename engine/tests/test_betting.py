@@ -1,7 +1,7 @@
 import unittest
-from src.game import Game
-from src.card import Card
-from src.controllers import ScriptedController
+from engine.src.game import Game
+from engine.src.card import Card
+from engine.src.controllers import ScriptedController
 
 
 def make_cards(card_strs):

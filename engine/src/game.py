@@ -106,6 +106,7 @@ class Game:
 
         for player in self.players:
             player.newHand()
+            player.stats.hands += 1
 
 
     def getPlayersInOrder(self, startIndex):

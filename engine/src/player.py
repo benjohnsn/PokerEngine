@@ -12,11 +12,17 @@ class Player:
         self.contribution = 0
         self.folded = False
 
+        self.didVpip = False
+        self.didPfr = False
+
     def newHand(self):
         self.hand = []
         self.currentBet = 0
         self.contribution = 0
         self.folded = False
+
+        self.didVpip = False
+        self.didPfr = False
 
     def __repr__(self):
         return f"{self.name}: {self.hand}"

@@ -8,6 +8,31 @@ class EquityCalculator:
         self.evaluator = Evaluator()
 
 
+    def calculateEquity(self, heroHand, board, numOpponents, simulations):
+        if simulations < 1:
+            raise ValueError("Simulations must be at least 1.")
+
+        wins = 0
+        ties = 0
+        losses = 0
+
+        for _ in range(simulations):
+            result = self.simulateOnce(heroHand, board, numOpponents)
+
+            if result == "win":
+                wins += 1
+            elif result == "tie":
+                ties += 1
+            else:
+                losses += 1
+
+        return {
+            "winPct": (wins / simulations) * 100,
+            "tiePct": (ties / simulations) * 100,
+            "lossPct": (losses / simulations) * 100
+        }
+
+
     def simulateOnce(self, heroHand, board, numOpponents):
         if len(heroHand) != 2:
             raise ValueError("Hero hand must contain exactly 2 cards.")

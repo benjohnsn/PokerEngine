@@ -10,3 +10,8 @@ class Card:
     
     def __repr__(self):
         return self.rank + self.suit
+
+    def __eq__(self, other):
+        if not isinstance(other, Card):
+            return False
+        return self.rank == other.rank and self.suit == other.suit

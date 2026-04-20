@@ -51,9 +51,11 @@ class Game:
         self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
+            self.recordHandStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
+            self.recordHandStats()
             return
         self.resetCurrentBets()
 
@@ -64,9 +66,11 @@ class Game:
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
+            self.recordHandStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
+            self.recordHandStats()
             return
         self.resetCurrentBets()
 
@@ -77,9 +81,11 @@ class Game:
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
+            self.recordHandStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
+            self.recordHandStats()
             return
         self.resetCurrentBets()
 
@@ -90,12 +96,14 @@ class Game:
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
+            self.recordHandStats()
             return
         self.resetCurrentBets()
 
         print("\n--- Showdown ---")
         self.showState()
         self.showdown()
+        self.recordHandStats()
 
 
     def newHand(self):
@@ -107,6 +115,21 @@ class Game:
         for player in self.players:
             player.newHand()
             player.stats.hands += 1
+
+
+    def recordHandStats(self):
+        for player in self.players:
+            if len(player.hand) == 0:
+                continue
+
+            player.stats.vpipOpps += 1
+            player.stats.pfrOpps += 1
+
+            if player.didVpip:
+                player.stats.vpip += 1
+
+            if player.didPfr:
+                player.stats.pfr += 1
 
 
     def getPlayersInOrder(self, startIndex):

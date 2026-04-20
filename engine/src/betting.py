@@ -63,8 +63,11 @@ class BettingManager:
             if targetBet is None:
                 raise ValueError("Raise amount required")
 
+            wasBettingClosed = self.getHighestBet() == 0
+
             self.raiseTo(player, targetBet)
-            if self.game.lastRaiser is None:
+
+            if wasBettingClosed:
                 player.stats.bets += 1
             else:
                 player.stats.raises += 1

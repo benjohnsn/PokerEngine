@@ -41,6 +41,7 @@ class BettingManager:
     def applyAction(self, player, action, targetBet=None, preflop=False):
         if action == "fold":
             self.fold(player)
+            player.stats.folds += 1
             print(player.name, "folds")
 
         elif action == "check":
@@ -51,6 +52,7 @@ class BettingManager:
             amountToCall = self.getAmountToCall(player)
             callAmount = min(amountToCall, player.stack)
             self.call(player)
+            player.stats.calls += 1
 
             if preflop and callAmount > 0:
                 player.didVpip = True
@@ -62,6 +64,10 @@ class BettingManager:
                 raise ValueError("Raise amount required")
 
             self.raiseTo(player, targetBet)
+            if self.game.lastRaiser is None:
+                player.stats.bets += 1
+            else:
+                player.stats.raises += 1
 
             if preflop:
                 player.didVpip = True

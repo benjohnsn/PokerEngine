@@ -314,14 +314,9 @@ class Game:
         activePlayers = self.getActivePlayers()
 
         for player in activePlayers:
+            player.stats.showdowns += 1
             score = self.evaluator.evaluateHand(player.hand + self.board)
             print(player.name, player.hand, "->", self.evaluator.formatHand(score))
-
-        self.awardPot()
-
-        activePlayers = self.getActivePlayers()
-        if not activePlayers:
-            return
 
         bestScore = None
         winners = []
@@ -334,6 +329,11 @@ class Game:
                 winners = [player]
             elif score == bestScore:
                 winners.append(player)
+
+        for player in winners:
+            player.stats.showdownWins += 1
+
+        self.awardPot()
 
         if len(winners) == 1:
             print(winners[0].name, "wins with", self.evaluator.formatHand(bestScore))

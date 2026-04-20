@@ -1,3 +1,5 @@
+import os
+import json
 import time
 
 from .player import Player
@@ -9,7 +11,7 @@ from .controllers import HumanController, RandomController, TightAggressiveContr
 class Game:
     def __init__(self):
         self.players = [
-            Player("Player 1", controller=TightAggressiveController()),
+            Player("Player 1", controller=HumanController()),
             Player("Player 2", controller=TightAggressiveController()),
             Player("Player 3", controller=TightAggressiveController()),
             Player("Player 4", controller=TightAggressiveController()),
@@ -27,6 +29,9 @@ class Game:
 
 
     def run(self):
+        self.setupHumanPlayers()
+        self.loadStats()
+
         while not self.isGameOver():
             time.sleep(2)
             self.playHand()
@@ -34,8 +39,20 @@ class Game:
             self.showStacks()
             self.showStats()
 
+        self.saveStats()
         winner = self.getGameWinner()
         print(winner.name, "wins the game!")
+
+
+    def setupHumanPlayers(self):
+        print("\n--- Player Setup ---")
+
+        for player in self.players:
+            if isinstance(player.controller, HumanController):
+                name = input(f"Enter name for {player.name}: ").strip()
+
+                if name:
+                    player.name = name
 
 
     def playHand(self):
@@ -53,10 +70,12 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
+            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
+            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -68,10 +87,12 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
+            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
+            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -83,10 +104,12 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
+            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
+            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -98,6 +121,7 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
+            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -105,6 +129,7 @@ class Game:
         self.showState()
         self.showdown()
         self.recordHandStats()
+        self.saveStats()
 
 
     def newHand(self):
@@ -131,6 +156,61 @@ class Game:
 
             if player.didPfr:
                 player.stats.pfr += 1
+
+
+    def loadStats(self):
+        path = "engine/data/profiles.json"
+
+        if not os.path.exists(path):
+            return
+
+        with open(path, "r") as f:
+            data = json.load(f)
+
+        for player in self.players:
+            if player.name not in data:
+                continue
+
+            statsData = data[player.name]
+
+            player.stats.hands = statsData.get("hands", 0)
+            player.stats.vpip = statsData.get("vpip", 0)
+            player.stats.vpipOpps = statsData.get("vpipOpps", 0)
+            player.stats.pfr = statsData.get("pfr", 0)
+            player.stats.pfrOpps = statsData.get("pfrOpps", 0)
+            player.stats.bets = statsData.get("bets", 0)
+            player.stats.raises = statsData.get("raises", 0)
+            player.stats.calls = statsData.get("calls", 0)
+            player.stats.folds = statsData.get("folds", 0)
+            player.stats.showdowns = statsData.get("showdowns", 0)
+            player.stats.showdownWins = statsData.get("showdownWins", 0)
+
+
+    def saveStats(self):
+        path = "engine/data/profiles.json"
+
+        data = {}
+
+        for player in self.players:
+            if not isinstance(player.controller, HumanController):
+                continue
+            
+            data[player.name] = {
+                "hands": player.stats.hands,
+                "vpip": player.stats.vpip,
+                "vpipOpps": player.stats.vpipOpps,
+                "pfr": player.stats.pfr,
+                "pfrOpps": player.stats.pfrOpps,
+                "bets": player.stats.bets,
+                "raises": player.stats.raises,
+                "calls": player.stats.calls,
+                "folds": player.stats.folds,
+                "showdowns": player.stats.showdowns,
+                "showdownWins": player.stats.showdownWins
+            }
+
+        with open(path, "w") as f:
+            json.dump(data, f, indent=4)
 
 
     def getPlayersInOrder(self, startIndex):

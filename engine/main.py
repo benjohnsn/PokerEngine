@@ -1,4 +1,4 @@
-from src.game import Game
+from engine.src.game import Game
 
 def main():
     game = Game()

@@ -13,3 +13,6 @@ script.py
 
 # Generated merge file
 merged.txt
+
+# Data files (local user data)
+data/profiles.json

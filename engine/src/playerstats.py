@@ -15,3 +15,25 @@ class PlayerStats:
 
         self.showdowns = 0
         self.showdownWins = 0
+
+
+    def getVpipPct(self):
+        if self.vpipOpps == 0:
+            return 0
+        return (self.vpip / self.vpipOpps) * 100
+
+
+    def getPfrPct(self):
+        if self.pfrOpps == 0:
+            return 0
+        return (self.pfr / self.pfrOpps) * 100
+
+
+    def getAggressionPct(self):
+        aggressive = self.bets + self.raises
+        total = self.bets + self.raises + self.calls
+
+        if total == 0:
+            return 0
+
+        return (aggressive / total) * 100

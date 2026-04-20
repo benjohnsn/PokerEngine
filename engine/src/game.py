@@ -32,6 +32,7 @@ class Game:
             self.playHand()
             self.rotateDealer()
             self.showStacks()
+            self.showStats()
 
         winner = self.getGameWinner()
         print(winner.name, "wins the game!")
@@ -301,6 +302,18 @@ class Game:
     def showStacks(self):
         for player in self.players:
             print(player.name, "Stack:", player.stack)
+
+
+    def showStats(self):
+        print("\n--- Stats ---")
+        for player in self.players:
+            print(
+                player.name,
+                f"Hands: {player.stats.hands}",
+                f"VPIP: {player.stats.getVpipPct():.1f}%",
+                f"PFR: {player.stats.getPfrPct():.1f}%",
+                f"Agg: {player.stats.getAggressionPct():.1f}%"
+            )
 
 
     def handFoldWin(self):

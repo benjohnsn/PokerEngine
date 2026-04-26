@@ -2,22 +2,14 @@ import os
 import json
 import time
 
-from .player import Player
 from .deck import Deck
 from .betting import BettingManager
 from .evaluator import Evaluator
-from .controllers import HumanController, RandomController, TightAggressiveController
+from .controllers import HumanController
 
 class Game:
-    def __init__(self):
-        self.players = [
-            Player("Player 1", controller=HumanController()),
-            Player("Player 2", controller=TightAggressiveController()),
-            Player("Player 3", controller=TightAggressiveController()),
-            Player("Player 4", controller=TightAggressiveController()),
-            Player("Player 5", controller=TightAggressiveController()),
-            Player("Player 6", controller=TightAggressiveController())
-        ]
+    def __init__(self, players):
+        self.players = players
         self.deck = Deck()
         self.bettingManager = BettingManager(self)
         self.evaluator = Evaluator()

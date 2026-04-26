@@ -21,7 +21,6 @@ class Game:
 
 
     def run(self):
-        self.setupHumanPlayers()
         self.loadStats()
 
         while not self.isGameOver():
@@ -34,17 +33,6 @@ class Game:
         self.saveStats()
         winner = self.getGameWinner()
         print(winner.name, "wins the game!")
-
-
-    def setupHumanPlayers(self):
-        print("\n--- Player Setup ---")
-
-        for player in self.players:
-            if isinstance(player.controller, HumanController):
-                name = input(f"Enter name for {player.name}: ").strip()
-
-                if name:
-                    player.name = name
 
 
     def playHand(self):

@@ -12,8 +12,22 @@ def main():
         Player("Player 6", controller=TightAggressiveController())
     ]
 
-    game = Game()
+    setupHumanPlayers(players)
+
+    game = Game(players)
     game.run()
+
+
+def setupHumanPlayers(players):
+    print("\n--- Player Setup ---")
+
+    for player in players:
+        if isinstance(player.controller, HumanController):
+            name = input(f"Enter name for {player.name}: ").strip()
+
+            if name:
+                player.name = name
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,5 @@
 import os
 import json
-import time
 
 from .deck import Deck
 from .betting import BettingManager
@@ -24,7 +23,6 @@ class Game:
         self.loadStats()
 
         while not self.isGameOver():
-            time.sleep(2)
             self.playHand()
             self.rotateDealer()
             self.showStacks()

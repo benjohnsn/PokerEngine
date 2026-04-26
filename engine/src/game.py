@@ -43,7 +43,8 @@ class Game:
 
         self.dealHands()
         print("\n--- Preflop ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -60,7 +61,8 @@ class Game:
         self.burn()
         self.dealFlop()
         print("\n--- Flop ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -77,7 +79,8 @@ class Game:
         self.burn()
         self.dealTurn()
         print("\n--- Turn ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -94,7 +97,8 @@ class Game:
         self.burn()
         self.dealRiver()
         print("\n--- River ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -104,7 +108,8 @@ class Game:
         self.resetCurrentBets()
 
         print("\n--- Showdown ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.showdown()
         self.recordHandStats()
         self.saveStats()
@@ -514,18 +519,29 @@ class Game:
                 self.dealRiver()
 
         print("\n--- Runout ---")
-        self.showState()
+        state = self.getState()
+        print(state)
         self.showdown()
 
 
-    def showState(self):
+    def getState(self):
+        state = []
+
         for player in self.players:
             if isinstance(player.controller, HumanController):
-                handDisplay = player.hand
+                hand = player.hand
             else:
-                handDisplay = ["??", "??"]
+                hand = ["??", "??"]
 
-            print(player.name, handDisplay, "Stack:", player.stack, "Bet:", player.currentBet)
+            state.append({
+                "name": player.name,
+                "hand": hand,
+                "stack": player.stack,
+                "bet": player.currentBet
+            })
 
-        print("Board:", self.board)
-        print("Pot:", self.pot)
+        return {
+            "players": state,
+            "board": self.board,
+            "pot": self.pot
+        }

@@ -1,7 +1,8 @@
 import unittest
 from engine.src.game import Game
+from engine.src.player import Player
 from engine.src.card import Card
-from engine.src.controllers import ScriptedController
+from engine.src.controllers import ScriptedController, TightAggressiveController
 
 
 def make_cards(card_strs):
@@ -15,7 +16,16 @@ def make_cards(card_strs):
 
 class TestBetting(unittest.TestCase):
     def setUp(self):
-        self.game = Game()
+        players = [
+            Player("Player 1", controller=TightAggressiveController()),
+            Player("Player 2", controller=TightAggressiveController()),
+            Player("Player 3", controller=TightAggressiveController()),
+            Player("Player 4", controller=TightAggressiveController()),
+            Player("Player 5", controller=TightAggressiveController()),
+            Player("Player 6", controller=TightAggressiveController())
+        ]
+
+        self.game = Game(players)
 
         self.p1 = self.game.players[0]
         self.p2 = self.game.players[1]

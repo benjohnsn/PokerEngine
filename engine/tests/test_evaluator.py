@@ -1,5 +1,4 @@
 import unittest
-from engine.src.game import Game
 from engine.src.evaluator import Evaluator
 from engine.src.card import Card
 
@@ -15,7 +14,6 @@ def make_cards(card_strs):
 
 class TestEvaluator(unittest.TestCase):
     def setUp(self):
-        self.game = Game()
         self.evaluator = Evaluator()
 
     def test_get_straight_high_regular(self):

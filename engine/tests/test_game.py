@@ -1,7 +1,8 @@
 import unittest
 from engine.src.game import Game
 from engine.src.card import Card
-
+from engine.src.player import Player
+from engine.src.controllers import TightAggressiveController
 
 def make_cards(card_strs):
     cards = []
@@ -11,10 +12,18 @@ def make_cards(card_strs):
         cards.append(Card(rank, suit))
     return cards
 
-
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.game = Game()
+        players = [
+            Player("Player 1", controller=TightAggressiveController()),
+            Player("Player 2", controller=TightAggressiveController()),
+            Player("Player 3", controller=TightAggressiveController()),
+            Player("Player 4", controller=TightAggressiveController()),
+            Player("Player 5", controller=TightAggressiveController()),
+            Player("Player 6", controller=TightAggressiveController())
+        ]
+
+        self.game = Game(players)
 
         self.p1 = self.game.players[0]
         self.p2 = self.game.players[1]

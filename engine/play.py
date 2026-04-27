@@ -15,7 +15,14 @@ def main():
     setupHumanPlayers(players)
 
     game = Game(players)
-    game.run()
+
+    while not game.isGameOver():
+        showStacks(game)
+        game.playOneHand()
+        showStats(game)
+
+    winner = game.getGameWinner()
+    print(winner.name, "wins the game!")
 
 
 def setupHumanPlayers(players):
@@ -29,14 +36,14 @@ def setupHumanPlayers(players):
                 player.name = name
 
 
-def showStacks(self):
-    for player in self.players:
+def showStacks(game):
+    for player in game.players:
         print(player.name, "Stack:", player.stack)
 
 
-def showStats(self):
+def showStats(game):
     print("\n--- Stats ---")
-    for player in self.players:
+    for player in game.players:
         print(
             player.name,
             f"Hands: {player.stats.hands}",

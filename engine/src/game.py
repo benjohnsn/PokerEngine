@@ -36,16 +36,11 @@ class Game:
 
 
     def playHand(self):
-        print("\n--- New Hand ---")
-
         self.newHand()
         self.deck.shuffle()
         self.postBlinds()
 
         self.dealHands()
-        print("\n--- Preflop ---")
-        state = self.getState()
-        print(state)
         self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -61,9 +56,6 @@ class Game:
 
         self.burn()
         self.dealFlop()
-        print("\n--- Flop ---")
-        state = self.getState()
-        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -79,9 +71,6 @@ class Game:
 
         self.burn()
         self.dealTurn()
-        print("\n--- Turn ---")
-        state = self.getState()
-        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -97,9 +86,6 @@ class Game:
 
         self.burn()
         self.dealRiver()
-        print("\n--- River ---")
-        state = self.getState()
-        print(state)
         self.bettingRound()
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -108,9 +94,6 @@ class Game:
             return
         self.resetCurrentBets()
 
-        print("\n--- Showdown ---")
-        state = self.getState()
-        print(state)
         self.showdown()
         self.recordHandStats()
         self.saveStats()
@@ -279,10 +262,6 @@ class Game:
 
         self.pot += sbPosted + bbPosted
 
-        print(sbPlayer.name, "posts small blind", sbPosted)
-        print(bbPlayer.name, "posts big blind", bbPosted)
-        print("Pot:", self.pot)
-
 
     def bettingRound(self, preflop=False):
         self.bettingManager.bettingRound(preflop)
@@ -367,21 +346,16 @@ class Game:
         winner = self.getRemainingPlayer()
         winner.stack += self.pot
         self.pot = 0
-        print(winner.name, "wins by everyone folding")
 
 
     def showdown(self):
         activePlayers = self.getActivePlayers()
 
-        for player in activePlayers:
-            player.stats.showdowns += 1
-            score = self.evaluator.evaluateHand(player.hand + self.board)
-            print(player.name, player.hand, "->", self.evaluator.formatHand(score))
-
         bestScore = None
         winners = []
 
         for player in activePlayers:
+            player.stats.showdowns += 1
             score = self.evaluator.evaluateHand(player.hand + self.board)
 
             if bestScore is None or score > bestScore:
@@ -394,14 +368,6 @@ class Game:
             player.stats.showdownWins += 1
 
         self.awardPot()
-
-        if len(winners) == 1:
-            print(winners[0].name, "wins with", self.evaluator.formatHand(bestScore))
-        else:
-            winnerNames = []
-            for player in winners:
-                winnerNames.append(player.name)
-            print("Tie between", ", ".join(winnerNames), "with", self.evaluator.formatHand(bestScore))
 
 
     def awardPot(self):
@@ -502,9 +468,6 @@ class Game:
             elif len(self.board) == 4:
                 self.dealRiver()
 
-        print("\n--- Runout ---")
-        state = self.getState()
-        print(state)
         self.showdown()
 
 

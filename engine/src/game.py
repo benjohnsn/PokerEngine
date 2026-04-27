@@ -362,11 +362,6 @@ class Game:
         return livePlayers[0]
 
 
-    def showStacks(self):
-        for player in self.players:
-            print(player.name, "Stack:", player.stack)
-
-
     def showStats(self):
         print("\n--- Stats ---")
         for player in self.players:

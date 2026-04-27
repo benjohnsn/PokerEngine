@@ -1,6 +1,6 @@
 from engine.src.game import Game
 from engine.src.player import Player
-from engine.src.controllers import RandomController, HumanController,  TightAggressiveController
+from engine.src.controllers import RandomController, HumanController, TightAggressiveController
 
 def main():
     players = [
@@ -27,6 +27,11 @@ def setupHumanPlayers(players):
 
             if name:
                 player.name = name
+
+
+def showStacks(self):
+    for player in self.players:
+        print(player.name, "Stack:", player.stack)
 
 
 if __name__ == "__main__":

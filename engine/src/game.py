@@ -23,19 +23,20 @@ class Game:
         self.loadStats()
 
         while not self.isGameOver():
-            self.playHand()
-            self.rotateDealer()
-            self.showStacks()
-            self.showStats()
+            self.playOneHand()
 
         self.saveStats()
         winner = self.getGameWinner()
         print(winner.name, "wins the game!")
 
 
+    def playOneHand(self):
+        self.playHand()
+        self.rotateDealer()
+
+
     def playHand(self):
         print("\n--- New Hand ---")
-        self.showStacks()
 
         self.newHand()
         self.deck.shuffle()
@@ -360,18 +361,6 @@ class Game:
     def getGameWinner(self):
         livePlayers = self.getLivePlayers()
         return livePlayers[0]
-
-
-    def showStats(self):
-        print("\n--- Stats ---")
-        for player in self.players:
-            print(
-                player.name,
-                f"Hands: {player.stats.hands}",
-                f"VPIP: {player.stats.getVpipPct():.1f}%",
-                f"PFR: {player.stats.getPfrPct():.1f}%",
-                f"Agg: {player.stats.getAggressionPct():.1f}%"
-            )
 
 
     def handFoldWin(self):

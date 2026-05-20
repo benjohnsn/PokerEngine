@@ -17,6 +17,7 @@ class Game:
         self.pot = 0
         self.lastRaiser = None
         self.dealerIndex = 0
+        self.currentPlayerIndex = 0
 
 
     def run(self):
@@ -36,11 +37,8 @@ class Game:
 
 
     def playHand(self):
-        self.newHand()
-        self.deck.shuffle()
-        self.postBlinds()
+        self.startHand()
 
-        self.dealHands()
         self.bettingRound(preflop=True)
         if self.countActivePlayers() == 1:
             self.handFoldWin()
@@ -97,6 +95,14 @@ class Game:
         self.showdown()
         self.recordHandStats()
         self.saveStats()
+
+
+    def startHand(self):
+        self.newHand()
+        self.deck.shuffle()
+        self.postBlinds()
+        self.dealHands()
+        self.currentPlayerIndex = self.getUnderTheGunIndex()
 
 
     def newHand(self):
@@ -228,6 +234,20 @@ class Game:
                 continue
             active.append(player)
         return active
+
+
+    def getCurrentPlayer(self):
+        activePlayers = self.getActivePlayers()
+
+        if len(activePlayers) == 0:
+            return None
+
+        return activePlayers[self.currentPlayerIndex % len(activePlayers)]
+
+
+    def advanceTurn(self):
+        activePlayers = self.getActivePlayers()
+        self.currentPlayerIndex = (self.currentPlayerIndex + 1) % len(activePlayers)
 
 
     def shouldRunoutBoard(self):
@@ -490,5 +510,6 @@ class Game:
         return {
             "players": state,
             "board": self.board,
-            "pot": self.pot
+            "pot": self.pot,
+            "currentPlayer": self.getCurrentPlayer().name    
         }

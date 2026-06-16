@@ -42,11 +42,9 @@ class BettingManager:
         if action == "fold":
             self.fold(player)
             player.stats.folds += 1
-            print(player.name, "folds")
 
         elif action == "check":
             self.check(player)
-            print(player.name, "checks")
 
         elif action == "call":
             amountToCall = self.getAmountToCall(player)
@@ -56,8 +54,6 @@ class BettingManager:
 
             if preflop and callAmount > 0:
                 player.didVpip = True
-
-            print(player.name, "calls", callAmount)
 
         elif action == "raise":
             if targetBet is None:
@@ -76,12 +72,8 @@ class BettingManager:
                 player.didVpip = True
                 player.didPfr = True
 
-            print(player.name, "raises to", targetBet)
-
         else:
             raise ValueError("Invalid action")
-
-        print("Pot:", self.game.pot)
 
 
     def getValidActions(self, player):

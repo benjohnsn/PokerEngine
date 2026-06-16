@@ -1,3 +1,5 @@
+import json
+
 from engine.src.game import Game
 from engine.src.player import Player
 from engine.src.controllers import RandomController, HumanController, TightAggressiveController
@@ -15,6 +17,7 @@ def main():
     setupHumanPlayers(players)
 
     game = Game(players)
+    game.loadStats()
 
     while not game.isGameOver():
         showStacks(game)
@@ -51,6 +54,33 @@ def showStats(game):
             f"PFR: {player.stats.getPfrPct():.1f}%",
             f"Agg: {player.stats.getAggressionPct():.1f}%"
         )
+
+
+def saveStats(game):
+        path = "engine/data/profiles.json"
+
+        data = {}
+
+        for player in game.players:
+            if not isinstance(player.controller, HumanController):
+                continue
+            
+            data[player.name] = {
+                "hands": player.stats.hands,
+                "vpip": player.stats.vpip,
+                "vpipOpps": player.stats.vpipOpps,
+                "pfr": player.stats.pfr,
+                "pfrOpps": player.stats.pfrOpps,
+                "bets": player.stats.bets,
+                "raises": player.stats.raises,
+                "calls": player.stats.calls,
+                "folds": player.stats.folds,
+                "showdowns": player.stats.showdowns,
+                "showdownWins": player.stats.showdownWins
+            }
+
+        with open(path, "w") as f:
+            json.dump(data, f, indent=4)
 
 
 if __name__ == "__main__":

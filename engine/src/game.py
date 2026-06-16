@@ -20,17 +20,6 @@ class Game:
         self.currentPlayerIndex = 0
 
 
-    def run(self):
-        self.loadStats()
-
-        while not self.isGameOver():
-            self.playOneHand()
-
-        self.saveStats()
-        winner = self.getGameWinner()
-        print(winner.name, "wins the game!")
-
-
     def playOneHand(self):
         self.playHand()
         self.rotateDealer()
@@ -43,12 +32,10 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
-            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
-            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -58,12 +45,10 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
-            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
-            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -73,12 +58,10 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
-            self.saveStats()
             return
         if self.shouldRunoutBoard():
             self.runoutBoard()
             self.recordHandStats()
-            self.saveStats()
             return
         self.resetCurrentBets()
 
@@ -88,13 +71,11 @@ class Game:
         if self.countActivePlayers() == 1:
             self.handFoldWin()
             self.recordHandStats()
-            self.saveStats()
             return
         self.resetCurrentBets()
 
         self.showdown()
         self.recordHandStats()
-        self.saveStats()
 
 
     def startHand(self):
@@ -157,33 +138,6 @@ class Game:
             player.stats.folds = statsData.get("folds", 0)
             player.stats.showdowns = statsData.get("showdowns", 0)
             player.stats.showdownWins = statsData.get("showdownWins", 0)
-
-
-    def saveStats(self):
-        path = "engine/data/profiles.json"
-
-        data = {}
-
-        for player in self.players:
-            if not isinstance(player.controller, HumanController):
-                continue
-            
-            data[player.name] = {
-                "hands": player.stats.hands,
-                "vpip": player.stats.vpip,
-                "vpipOpps": player.stats.vpipOpps,
-                "pfr": player.stats.pfr,
-                "pfrOpps": player.stats.pfrOpps,
-                "bets": player.stats.bets,
-                "raises": player.stats.raises,
-                "calls": player.stats.calls,
-                "folds": player.stats.folds,
-                "showdowns": player.stats.showdowns,
-                "showdownWins": player.stats.showdownWins
-            }
-
-        with open(path, "w") as f:
-            json.dump(data, f, indent=4)
 
 
     def getPlayersInOrder(self, startIndex):

@@ -91,6 +91,7 @@ class Game:
         self.board = []
         self.pot = 0
         self.lastRaiser = None
+        self.currentPlayerIndex = 0
 
         for player in self.players:
             player.newHand()
@@ -456,14 +457,16 @@ class Game:
 
             state.append({
                 "name": player.name,
-                "hand": hand,
+                "hand": [str(c) for c in hand],
                 "stack": player.stack,
                 "bet": player.currentBet
             })
 
+        currentPlayer = self.getCurrentPlayer()
+
         return {
             "players": state,
-            "board": self.board,
+            "board": [str(c) for c in self.board],
             "pot": self.pot,
-            "currentPlayer": self.getCurrentPlayer().name    
+            "currentPlayer": currentPlayer.name if currentPlayer else None
         }

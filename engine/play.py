@@ -2,7 +2,7 @@ import json
 
 from engine.src.game import Game
 from engine.src.player import Player
-from engine.src.controllers import RandomController, HumanController, TightAggressiveController
+from engine.src.controllers import HumanController, TightAggressiveController
 
 def main():
     players = [

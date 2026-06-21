@@ -2,11 +2,11 @@ import json
 
 from engine.src.game import Game
 from engine.src.player import Player
-from engine.src.controllers import HumanController, TightAggressiveController
+from engine.src.controllers import CLIHumanController, TightAggressiveController
 
 def main():
     players = [
-        Player("Player 1", controller=HumanController()),
+        Player("Player 1", controller=CLIHumanController()),
         Player("Player 2", controller=TightAggressiveController()),
         Player("Player 3", controller=TightAggressiveController()),
         Player("Player 4", controller=TightAggressiveController()),
@@ -20,9 +20,7 @@ def main():
     game.loadStats()
 
     while not game.isGameOver():
-        showStacks(game)
-        game.playOneHand()
-        showStats(game)
+        game.step()
 
     winner = game.getGameWinner()
     print(winner.name, "wins the game!")
@@ -32,7 +30,7 @@ def setupHumanPlayers(players):
     print("\n--- Player Setup ---")
 
     for player in players:
-        if isinstance(player.controller, HumanController):
+        if isinstance(player.controller, CLIHumanController):
             name = input(f"Enter name for {player.name}: ").strip()
 
             if name:

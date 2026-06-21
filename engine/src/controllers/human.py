@@ -1,4 +1,4 @@
-class HumanController:
+class ServerHumanController:
     def __init__(self):
         self.pendingAction = None
         self.pendingTargetBet = None

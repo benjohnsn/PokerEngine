@@ -4,7 +4,7 @@ import json
 from .deck import Deck
 from .betting import BettingManager
 from .evaluator import Evaluator
-from .controllers import HumanController
+from .controllers import ServerHumanController
 
 class Game:
     def __init__(self, players):
@@ -18,6 +18,9 @@ class Game:
         self.lastRaiser = None
         self.dealerIndex = 0
         self.currentPlayerIndex = 0
+
+        self.phase = "preflop"
+        self.actionInProgress = False
 
 
     def playOneHand(self):
@@ -77,6 +80,60 @@ class Game:
         self.showdown()
         self.recordHandStats()
 
+    
+    def step(self):
+        if self.phase == "done":
+            if self.isGameOver():
+                return
+            
+            self.rotateDealer()
+            self.startHand()
+            return
+
+        if self.phase == "preflop":
+            self.bettingManager.stepBetting(preflop=True)
+
+            if self.bettingManager.isBettingRoundComplete():
+                self.enterPhase("flop")
+
+        elif self.phase == "flop":
+            self.bettingManager.stepBetting()
+
+            if self.bettingManager.isBettingRoundComplete():
+                self.enterPhase("turn")
+
+        elif self.phase == "turn":
+            self.bettingManager.stepBetting()
+
+            if self.bettingManager.isBettingRoundComplete():
+                self.enterPhase("river")
+
+        elif self.phase == "river":
+            self.bettingManager.stepBetting()
+
+            if self.bettingManager.isBettingRoundComplete():
+                self.enterPhase("showdown")
+
+
+    def enterPhase(self, phase):
+        self.phase = phase
+
+        if phase == "flop":
+            self.burn()
+            self.dealFlop()
+
+        elif phase == "turn":
+            self.burn()
+            self.dealTurn()
+
+        elif phase == "river":
+            self.burn()
+            self.dealRiver()
+
+        elif phase == "showdown":
+            self.showdown()
+            self.phase = "done"
+
 
     def startHand(self):
         self.newHand()
@@ -92,6 +149,7 @@ class Game:
         self.pot = 0
         self.lastRaiser = None
         self.currentPlayerIndex = 0
+        self.phase = "preflop"
 
         for player in self.players:
             player.newHand()

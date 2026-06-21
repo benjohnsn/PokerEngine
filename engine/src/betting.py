@@ -38,6 +38,37 @@ class BettingManager:
                 return
 
 
+    def stepBetting(self, preflop=False):
+        player = self.game.getCurrentPlayer()
+
+        if player is None:
+            return
+
+        if player.folded or len(player.hand) == 0:
+            self.game.advanceTurn()
+            return
+
+        validActions = self.getValidActions(player)
+        amountToCall = self.getAmountToCall(player)
+
+        action, targetBet = player.controller.getAction(
+            self.game,
+            player,
+            validActions,
+            amountToCall
+        )
+
+        self.applyAction(player, action, targetBet, preflop)
+
+        if self.game.countActivePlayers() <= 1:
+            return
+
+        if self.game.isBettingRoundComplete():
+            return
+
+        self.game.advanceTurn()
+
+
     def applyAction(self, player, action, targetBet=None, preflop=False):
         if action == "fold":
             self.fold(player)
